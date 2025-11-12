@@ -14,42 +14,31 @@ const Search = ({ onBack }) => {
     setError('');
     setSecurityAlert(false);
 
+    console.log("🔍 FRONTEND: Starting search with query:", query);
+
     try {
       const result = await searchProducts(query);
+      console.log("🔍 FRONTEND: Search API response:", result);
+      
       if (result.success) {
         setResults(result.results);
         setError('');
+        console.log("🔍 FRONTEND: Found", result.results.length, "results");
       } else {
         setError(result.error);
         setResults([]);
-        // Show security alert for SQL injection attempts
+        console.log("🔍 FRONTEND: Search failed:", result.error);
         if (result.error.includes('Malicious') || result.error.includes('logged')) {
           setSecurityAlert(true);
         }
       }
     } catch (err) {
+      console.error("🔍 FRONTEND: Search error:", err);
       setError('An error occurred during search');
       setResults([]);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Function to get product image
-  const getProductImage = (product) => {
-    const imageMap = {
-      'Laptop': '💻',
-      'Smartphone': '📱',
-      'Programming Book': '📚',
-      'Wireless Headphones': '🎧',
-      'Coffee Mug': '☕',
-      'Cotton T-Shirt': '👕',
-      'LED Desk Lamp': '💡',
-      'Backpack': '🎒',
-      'Monitor': '🖥️',
-      'Keyboard': '⌨️'
-    };
-    return imageMap[product.name] || '📦';
   };
 
   return (
@@ -69,10 +58,6 @@ const Search = ({ onBack }) => {
             <strong>Security Event Logged</strong>
           </div>
           <p>The attempt was logged and blacklisted inputs updated.</p>
-          <div className="security-log-details">
-            <span className="log-timestamp">Timestamp: {new Date().toLocaleString()}</span>
-            <span className="log-query">Query: "{query}"</span>
-          </div>
         </div>
       )}
       
@@ -98,14 +83,19 @@ const Search = ({ onBack }) => {
       </form>
 
       <div className="search-demo-info">
-        <h4>Search Security Demo</h4>
-        <p>Try these SQL injection attempts to see the security system in action:</p>
+        <h4>SQL Injection Test</h4>
+        <p>Try these payloads to test security:</p>
         <div className="sql-examples">
-          <code>' OR 1=1--</code>
-          <code>' UNION SELECT * FROM users--</code>
-          <code>'; DROP TABLE products--</code>
+          <button type="button" onClick={() => setQuery("' OR '1'='1")} className="test-btn">
+            Test: ' OR '1'='1
+          </button>
+          <button type="button" onClick={() => setQuery("' UNION SELECT username,password,email FROM users--")} className="test-btn">
+            Test: UNION SELECT
+          </button>
+          <button type="button" onClick={() => setQuery("test")} className="test-btn">
+            Test: Normal Search
+          </button>
         </div>
-        <p className="demo-note">All malicious search attempts are logged and the blacklist is automatically updated.</p>
       </div>
 
       {results.length > 0 && (
@@ -141,5 +131,22 @@ const Search = ({ onBack }) => {
     </div>
   );
 };
+
+// Helper function
+function getProductImage(product) {
+  const imageMap = {
+    'Laptop': '💻',
+    'Smartphone': '📱',
+    'Programming Book': '📚',
+    'Wireless Headphones': '🎧',
+    'Coffee Mug': '☕',
+    'Cotton T-Shirt': '👕',
+    'LED Desk Lamp': '💡',
+    'Backpack': '🎒',
+    'Monitor': '🖥️',
+    'Keyboard': '⌨️'
+  };
+  return imageMap[product.name] || '📦';
+}
 
 export default Search;

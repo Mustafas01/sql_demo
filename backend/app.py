@@ -58,152 +58,127 @@ def cleanup_blacklist():
         print(f"Blacklist cleaned up. Removed {len(lines) - len(unique_lines)} duplicates.")
 
 def is_sql_injection(input_string):
-    """Enhanced SQL injection detection with more comprehensive patterns"""
+    """Enhanced SQL injection detection with comprehensive patterns"""
     if not input_string or not isinstance(input_string, str):
         return False
     
     # Load current blacklist
     blacklist = load_blacklist()
     
-    # Enhanced SQL injection patterns
+    # Comprehensive SQL injection patterns
     patterns = [
-        # Basic SQL injection patterns
-        r"(\b(SELECT|UNION|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|EXEC|EXECUTE|DECLARE)\b.*\b(FROM|INTO|TABLE|DATABASE|WHERE|SET|VALUES)\b)",
-        r"(\b(OR|AND)\b\s+[\d\w]+\s*[=<>]+\s*[\d\w]+)",
-        r"('|\"|;|--|#|/\*|\*/|@@|@)",
+        # Single SQL keywords
+        r"\b(SELECT|UNION|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|EXEC|EXECUTE|DECLARE)\b",
+        r"\b(FROM|INTO|TABLE|DATABASE|WHERE|SET|VALUES|HAVING|GROUP\s+BY|ORDER\s+BY)\b",
+        r"\b(OR|AND|NOT|LIKE|BETWEEN|IN|IS|NULL)\b",
         
-        # Comment patterns
-        r"(--[\s\n]|#.*$|/\*.*\*/)",
+        # UNION-based attacks (comprehensive)
+        r"UNION\s+SELECT",
+        r"UNION\s+ALL\s+SELECT", 
+        r"SELECT\s+\w+\s+FROM",
+        r"UNION.*SELECT.*FROM",
+        r"SELECT.*FROM.*users",
+        r"UNION.*SELECT.*username",
+        r"UNION.*SELECT.*password",
         
-        # Union-based injection
-        r"(\bUNION\b.*\bSELECT\b)",
-        r"(\bSELECT\b.*\bFROM\b.*\bWHERE\b)",
-        
-        # Stacked queries
-        r"(;\s*(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE))",
-        
-        # Time-based blind SQLi
-        r"(\b(WAITFOR|DELAY)\b.*\b'\d+:\d+:\d+')",
-        r"(\b(SLEEP|BENCHMARK)\b\s*\(\s*\d+)",
-        
-        # File operations
-        r"(\b(LOAD_FILE|INTO_FILE|INTO\s+OUTFILE|DUMPFILE)\b)",
-        
-        # System functions
-        r"(\b(CHAR|CONCAT|SUBSTRING|LENGTH|DATABASE|VERSION|USER)\b.*\()",
-        
-        # Error-based injection
-        r"(\b(EXTRACTVALUE|UPDATEXML|GEOMETRYCOLLECTION|POLYGON)\b.*\()",
+        # Comment and termination
+        r"--",
+        r"#",
+        r"\/\*",
+        r"\*\/",
+        r";",
         
         # Authentication bypass
-        r"('(\s*OR\s*['\d\w]\s*[=<>]+\s*['\d\w])+.*--)",
-        r"('(\s*OR\s*.+\))",
+        r"'\s*OR\s*'1'='1",
+        r"'\s*AND\s*'1'='1",
+        r"'\s*OR\s*\d+\s*=\s*\d+",
+        r"'\s*AND\s*\d+\s*=\s*\d+",
         
-        # Hexadecimal and encoded attacks
-        r"(0x[0-9a-fA-F]+)",
-        r"(%[0-9a-fA-F]{2})",
+        # Stacked queries
+        r";\s*SELECT",
+        r";\s*DROP",
+        r";\s*INSERT", 
+        r";\s*UPDATE",
+        r";\s*DELETE",
         
-        # Command execution
-        r"(\b(XP_CMDSHELL|CMDSHELL|EXEC_MASTER)\b)",
+        # System/database specific
+        r"FROM\s+users",
+        r"FROM\s+information_schema",
+        r"FROM\s+sqlite_master",
         
-        # Database enumeration
-        r"(\b(INFORMATION_SCHEMA|SYSOBJECTS|SYSUSERS)\b)",
+        # Time-based
+        r"SLEEP\s*\(",
+        r"BENCHMARK\s*\(",
+        r"WAITFOR\s+DELAY",
         
-        # Conditional errors
-        r"(\b(IF|CASE|WHEN|THEN|ELSE)\b.*\()",
-        
-        # Privilege escalation
-        r"(\b(GRANT|REVOKE|PRIVILEGES)\b)",
-        
-        # Bypass techniques
-        r"(\b(COLLATE|CAST|CONVERT)\b)",
-        
-        # Advanced patterns
-        r"('.*\s+(AND|OR)\s+.*=.*)",
-        r"(\bLIMIT\b\s*\d+(\s*,\s*\d+)?)",
-        r"(\bORDER\s+BY\b.*\d+)",
-        
-        # Nested queries
-        r"(\bSELECT\b.*\bFROM\b.*\bSELECT\b)",
-        
-        # Boolean-based blind SQLi
-        r"('?\s*(AND|OR)\s+(\d+|\w+)\s*=\s*(\d+|\w+)\s*'?)",
-        
-        # Alternative quote escaping
-        r"(''|\"\"|\\'|\\\")",
-        
-        # URL encoded attacks
-        r"(%27|%20OR%20|%20AND%20|%3B|%2D%2D)",
-        
-        # Chained attacks
-        r"('.*;.*--)",
+        # File operations
+        r"LOAD_FILE\s*\(",
+        r"INTO\s+OUTFILE",
+        r"INTO\s+DUMPFILE",
     ]
     
     # Add blacklisted patterns
     patterns.extend([re.escape(pattern) for pattern in blacklist if pattern])
     
     input_upper = input_string.upper()
-    input_clean = input_string.strip()
     
-    # Check for overly long inputs (potential DoS)
+    # Quick length check
     if len(input_string) > 1000:
         return True
     
-    # Check for multiple suspicious patterns in same input
-    suspicious_count = 0
+    # Quote count check
+    if input_string.count("'") >= 2 or input_string.count('"') >= 2:
+        return True
     
+    # Check for specific dangerous table/column names
+    dangerous_terms = ['USERS', 'PASSWORD', 'USERNAME', 'EMAIL', 'ADMIN']
+    if any(term in input_upper for term in dangerous_terms):
+        # If these terms appear with SQL keywords, block
+        sql_keywords_in_input = any(kw in input_upper for kw in ['UNION', 'SELECT', 'FROM', 'WHERE'])
+        if sql_keywords_in_input:
+            return True
+    
+    # Check all patterns
     for pattern in patterns:
         try:
             if re.search(pattern, input_upper, re.IGNORECASE):
-                # If it's a very clear attack pattern, return immediately
-                if any(keyword in pattern for keyword in ['UNION', 'SELECT', 'DROP', 'DELETE', 'INSERT', 'UPDATE']):
-                    return True
-                suspicious_count += 1
-                
-                # If multiple suspicious patterns found, consider it malicious
-                if suspicious_count >= 2:
-                    return True
+                return True
         except re.error:
-            # Skip invalid regex patterns
             continue
-    
-    # Additional heuristic checks
-    if heuristic_checks(input_string):
-        return True
     
     return False
 
-def heuristic_checks(input_string):
-    """Additional heuristic checks for SQL injection"""
+def advanced_heuristic_checks(input_string):
+    """More advanced heuristic checks"""
     input_upper = input_string.upper()
     
-    # Check for unbalanced quotes
-    single_quotes = input_string.count("'")
-    double_quotes = input_string.count('"')
-    if (single_quotes % 2 != 0) or (double_quotes % 2 != 0):
-        return True
-    
-    # Check for suspicious ratio of SQL keywords to normal text
-    sql_keywords = ['SELECT', 'UNION', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 'ALTER', 'CREATE', 'EXEC']
-    keyword_count = sum(1 for keyword in sql_keywords if keyword in input_upper)
-    word_count = len(input_string.split())
-    
-    if word_count > 0 and keyword_count / word_count > 0.3:  # More than 30% SQL keywords
-        return True
-    
-    # Check for common SQL injection payload structures
+    # Check for common SQLi structures
     suspicious_sequences = [
         r"'\s*OR\s*'1'='1",
-        r"'\s*AND\s*'1'='1", 
+        r"'\s*AND\s*'1'='1",
         r"'\s*UNION\s*ALL\s*SELECT",
-        r"';.*--",
-        r"';\s*DROP\s*TABLE",
+        r"';",
+        r"'--",
+        r"'/\*",
         r"'\s*OR\s*\d+\s*=\s*\d+",
+        r"'\s*AND\s*\d+\s*=\s*\d+",
     ]
     
     for seq in suspicious_sequences:
-        if re.search(seq, input_upper, re.IGNORECASE):
+        if re.search(seq, input_string, re.IGNORECASE):
             return True
+    
+    # Check keyword density
+    sql_keywords = ['SELECT', 'UNION', 'INSERT', 'UPDATE', 'DELETE', 'DROP', 
+                   'ALTER', 'CREATE', 'EXEC', 'FROM', 'WHERE', 'AND', 'OR']
+    found_keywords = [kw for kw in sql_keywords if kw in input_upper]
+    
+    if len(found_keywords) >= 2:
+        return True
+    
+    # Check for suspicious character combinations
+    if any(combo in input_string for combo in ["' OR", "' AND", "';", "'--", "UNION", "SELECT *"]):
+        return True
     
     return False
 

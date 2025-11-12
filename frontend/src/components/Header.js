@@ -1,18 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { searchProducts } from '../services/api';
 
-const Header = ({ user, currentView, onNavigate, onLogout }) => {
+const Header = ({ user, onNavigate, onLogout }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchError, setSearchError] = useState('');
   const navigate = useNavigate();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      if (user) {
-        navigate('/search', { state: { query: searchQuery } });
-      } else {
-        navigate('/products', { state: { query: searchQuery } });
+      console.log("🔍 HEADER SEARCH: Searching for:", searchQuery);
+      
+      try {
+        const result = await searchProducts(searchQuery);
+        console.log("🔍 HEADER SEARCH: Result:", result);
+        
+        if (result.success) {
+          // Navigate to products page with search results
+          navigate('/products', { state: { searchResults: result.results, searchQuery } });
+          setSearchError('');
+        } else {
+          setSearchError(result.error);
+          console.log("🔍 HEADER SEARCH: Error:", result.error);
+        }
+      } catch (err) {
+        console.error("🔍 HEADER SEARCH: Exception:", err);
+        setSearchError('Search failed');
       }
+      
       setSearchQuery('');
     }
   };
@@ -27,7 +43,7 @@ const Header = ({ user, currentView, onNavigate, onLogout }) => {
           <nav className="nav">
             <button 
               onClick={() => onNavigate('/products')}
-              className={currentView === 'products' ? 'nav-btn active' : 'nav-btn'}
+              className="nav-btn"
             >
               Products
             </button>
@@ -35,14 +51,14 @@ const Header = ({ user, currentView, onNavigate, onLogout }) => {
               <>
                 <button 
                   onClick={() => onNavigate('/dashboard')}
-                  className={currentView === 'dashboard' ? 'nav-btn active' : 'nav-btn'}
+                  className="nav-btn"
                 >
                   Dashboard
                 </button>
                 {user.role === 'admin' && (
                   <button 
                     onClick={() => onNavigate('/admin')}
-                    className={currentView === 'admin' ? 'nav-btn active' : 'nav-btn'}
+                    className="nav-btn"
                   >
                     Admin
                   </button>
@@ -58,13 +74,21 @@ const Header = ({ user, currentView, onNavigate, onLogout }) => {
               type="text"
               placeholder="Search products..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSearchError('');
+              }}
               className="search-input"
             />
             <button type="submit" className="search-btn">
               🔍
             </button>
           </form>
+          {searchError && (
+            <div className="header-search-error">
+              {searchError}
+            </div>
+          )}
         </div>
         
         <div className="header-right">

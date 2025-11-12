@@ -11,13 +11,20 @@ const Products = ({ onBack, user, isFeatured = false }) => {
   const location = useLocation();
 
   useEffect(() => {
-    const searchQuery = location.state?.query;
-    if (searchQuery) {
-      handleSearch(searchQuery);
+    // Check if we have search results from header
+    const searchResults = location.state?.searchResults;
+    const searchQuery = location.state?.searchQuery;
+    
+    if (searchResults) {
+      console.log("📦 PRODUCTS: Displaying search results from header");
+      setProducts(searchResults);
+      setError('');
     } else {
       loadProducts();
     }
   }, [category, location]);
+
+  // ... rest of your Products component remains the same
 
   const loadProducts = async () => {
     setLoading(true);
