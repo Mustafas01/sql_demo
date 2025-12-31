@@ -1,3 +1,11 @@
+from flask_jwt_extended import (
+    JWTManager,
+    jwt_required,
+    get_jwt_identity,
+    create_access_token  # 🔹 ADDED
+)
+from security_logger import log_request  # 🔹 ADDED
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sqlite3
@@ -7,10 +15,23 @@ from datetime import datetime
 import hashlib
 
 app = Flask(__name__)
+
+app.config["JWT_SECRET_KEY"] = "CHANGE_ME_IN_PROD"  # 🔹 ADDED
+JWTManager(app)  # 🔹 ADDED
+
 app.secret_key = 'your_secret_key_here'
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 BLACKLIST_FILE = 'blacklist.txt'
+def admin_only():
+    user = get_jwt_identity()
+    if not user or user.get("role") != "admin":
+        return jsonify({"error": "Admin access required"}), 403
+
+# 🔹 ADDED — logging middleware
+@app.after_request
+def after_request(response):
+    return log_request(response)
 
 # Initialize blacklist file
 if not os.path.exists(BLACKLIST_FILE):
@@ -301,6 +322,7 @@ def api_register():
     except Exception as e:
         return jsonify({'success': False, 'error': f'Database error: {str(e)}'})
 
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     """API login endpoint - SECURED"""
@@ -325,8 +347,15 @@ def api_login():
         conn.close()
         
         if user:
+            access_token = create_access_token(identity={
+                "id": user[0],
+                "username": user[1],
+                "role": user[4]
+            })
+
             return jsonify({
                 'success': True,
+                'access_token': access_token,
                 'user': {
                     'id': user[0],
                     'username': user[1],
@@ -482,7 +511,11 @@ def api_logout():
 
 # Admin routes for product management
 @app.route('/api/admin/products', methods=['GET', 'POST'])
+@jwt_required()
 def admin_products():
+    check = admin_only()
+    if check:
+        return check
     if request.method == 'POST':
         # Create new product
         data = request.get_json()
@@ -532,7 +565,11 @@ def admin_products():
             return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/products/<int:product_id>', methods=['PUT', 'DELETE'])
+@jwt_required()
 def admin_product_operations(product_id):
+    check = admin_only()
+    if check:
+        return check
     if request.method == 'PUT':
         # Update product
         data = request.get_json()
@@ -572,8 +609,11 @@ def admin_product_operations(product_id):
 
 # Admin routes for user management
 @app.route('/api/admin/users', methods=['GET'])
+@jwt_required()
 def get_all_users():
-    """Get all users (admin only) - SECURED"""
+    check = admin_only()
+    if check:
+        return check
     try:
         conn = sqlite3.connect('demo.db')
         cursor = conn.cursor()
@@ -595,8 +635,11 @@ def get_all_users():
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/users', methods=['POST'])
+@jwt_required()
 def create_new_user():
-    """Create new user (admin only) - SECURED"""
+    check = admin_only()
+    if check:
+        return check
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -623,8 +666,11 @@ def create_new_user():
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/users/<int:user_id>', methods=['PUT'])
+@jwt_required()
 def update_existing_user(user_id):
-    """Update user (admin only) - SECURED"""
+    check = admin_only()
+    if check:
+        return check
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -659,8 +705,11 @@ def update_existing_user(user_id):
         return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
+@jwt_required()
 def delete_existing_user(user_id):
-    """Delete user (admin only) - SECURED"""
+    check = admin_only()
+    if check:
+        return check
     try:
         conn = sqlite3.connect('demo.db')
         cursor = conn.cursor()
