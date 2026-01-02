@@ -30,8 +30,13 @@ const Login = ({ onLogin, onBack }) => {
     try {
       const result = await login(formData.username, formData.password);
       if (result.success) {
-        onLogin(result.user);
-      } else {
+  //  STORE JWT + ROLE (PATCH 2)
+  localStorage.setItem("token", result.access_token);
+  localStorage.setItem("role", result.user.role);
+
+  onLogin(result.user);
+}
+ else {
         setError(result.error);
         // Show security alert for SQL injection attempts
         if (result.error.includes('Malicious input detected') || result.error.includes('logged')) {

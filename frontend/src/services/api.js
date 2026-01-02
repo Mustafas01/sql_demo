@@ -1,137 +1,177 @@
 import axios from 'axios';
 
+/* ================================
+    – WAF CONFIG
+================================ */
+
 const API_BASE_URL = 'http://localhost:5000/api';
 
-// Create axios instance with default config
+const SQLI_PATTERNS = [
+  /(\%27)|(\')|(\-\-)|(\%23)|(#)/i,
+  /(\bOR\b|\bAND\b).*(=|LIKE)/i,
+  /UNION(\s)+SELECT/i,
+  /SELECT.*FROM/i,
+  /INSERT(\s)+INTO/i,
+  /DROP(\s)+TABLE/i,
+  /UPDATE(\s)+.*SET/i,
+  /DELETE(\s)+FROM/i
+];
+
+const detectSQLInjection = (payload) => {
+  if (!payload) return false;
+
+  const data = JSON.stringify(payload);
+  return SQLI_PATTERNS.some((pattern) => pattern.test(data));
+};
+
+/* ================================
+    – AXIOS INSTANCE
+================================ */
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-  },
+    'Content-Type': 'application/json'
+  }
 });
 
-// API functions
+/* ================================
+    – REQUEST INTERCEPTOR
+================================ */
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+
+    /* Attach JWT */
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    /* Request fingerprint */
+    config.headers['X-Request-Fingerprint'] = btoa(
+      navigator.userAgent + Date.now()
+    );
+
+    /* SQLi detection (frontend WAF layer) */
+    if (detectSQLInjection(config.data)) {
+      console.warn('[WAF] SQL Injection pattern detected (client-side)');
+      config.headers['X-WAF-Alert'] = 'SQLI_DETECTED';
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response) {
+      const status = error.response.status;
+
+      if (status === 401) {
+        console.warn('[AUTH] JWT expired or invalid');
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+      }
+
+      if (status === 403) {
+        console.warn('[SECURITY] Access forbidden – possible WAF block');
+      }
+
+      if (status === 429) {
+        console.warn('[WAF] Rate limit triggered');
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+/* ================================
+    EXISTING API FUNCTIONS 
+================================ */
+
 export const login = async (username, password) => {
   try {
-    const response = await api.post('/login', { username, password });
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Login failed' };
+    const res = await api.post('/login', { username, password });
+    return res.data;
+  } catch (err) {
+    return { success: false, error: err.response?.data?.error || 'Login failed' };
   }
 };
 
-export const register = async (username, password, email) => {
+export const getProducts = async () => {
   try {
-    const response = await api.post('/register', { username, password, email });
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Registration failed' };
-  }
-};
-
-export const getProductById = async (productId) => {
-  try {
-    const response = await api.get(`/product/${productId}`);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to load product' };
-  }
-};
-
-export const searchProducts = async (query) => {
-  try {
-    const response = await api.post('/search', { query });
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Search failed' };
-  }
-};
-
-export const getProducts = async (category = '') => {
-  try {
-    const url = category ? `/products?category=${encodeURIComponent(category)}` : '/products';
-    const response = await api.get(url);
-    return response.data;
-  } catch (error) {
-    console.error('API Error loading products:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.error || 'Failed to load products. Please check if the backend server is running.' 
-    };
-  }
-};
-
-export const logout = async () => {
-  try {
-    await api.post('/logout');
-    return { success: true };
-  } catch (error) {
+    const res = await api.get('/products');
+    return res.data;
+  } catch {
     return { success: false };
   }
 };
 
-// ADMIN API FUNCTIONS
-export const createProduct = async (productData) => {
+export const createProduct = async (data) => {
   try {
-    const response = await api.post('/admin/products', productData);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to create product' };
+    const res = await api.post('/products', data);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
-export const updateProduct = async (productId, productData) => {
+export const updateProduct = async (id, data) => {
   try {
-    const response = await api.put(`/admin/products/${productId}`, productData);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to update product' };
+    const res = await api.put(`/products/${id}`, data);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
-export const deleteProduct = async (productId) => {
+export const deleteProduct = async (id) => {
   try {
-    const response = await api.delete(`/admin/products/${productId}`);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to delete product' };
+    const res = await api.delete(`/products/${id}`);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
 export const getUsers = async () => {
   try {
-    const response = await api.get('/admin/users');
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to load users' };
+    const res = await api.get('/users');
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
-export const createUser = async (userData) => {
+export const createUser = async (data) => {
   try {
-    const response = await api.post('/admin/users', userData);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to create user' };
+    const res = await api.post('/users', data);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
-export const updateUser = async (userId, userData) => {
+export const updateUser = async (id, data) => {
   try {
-    const response = await api.put(`/admin/users/${userId}`, userData);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to update user' };
+    const res = await api.put(`/users/${id}`, data);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
 
-export const deleteUser = async (userId) => {
+export const deleteUser = async (id) => {
   try {
-    const response = await api.delete(`/admin/users/${userId}`);
-    return response.data;
-  } catch (error) {
-    return { success: false, error: error.response?.data?.error || 'Failed to delete user' };
+    const res = await api.delete(`/users/${id}`);
+    return res.data;
+  } catch {
+    return { success: false };
   }
 };
-
-export default api;
