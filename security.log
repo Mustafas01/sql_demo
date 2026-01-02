@@ -1,0 +1,12 @@
+2025-12-31 08:27:48,359 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2025-12-31 08:27:48,359 | INFO | [33mPress CTRL+C to quit[0m
+2025-12-31 08:27:48,362 | INFO |  * Restarting with stat
+2025-12-31 08:27:48,902 | WARNING |  * Debugger is active!
+2025-12-31 08:27:48,907 | INFO |  * Debugger PIN: 937-678-769
+2025-12-31 08:29:23,906 | INFO |  * Detected change in 'c:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\jwt_auth.py', reloading
+2025-12-31 08:29:24,008 | INFO |  * Restarting with stat
+2025-12-31 08:29:24,518 | WARNING |  * Debugger is active!
+2025-12-31 08:29:24,522 | INFO |  * Debugger PIN: 937-678-769
