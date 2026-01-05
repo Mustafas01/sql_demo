@@ -175,3 +175,49 @@ export const deleteUser = async (id) => {
     return { success: false };
   }
 };
+/* ================================
+
+================================ */
+
+/* REGISTER */
+export const register = async (username, password, email) => {
+  try {
+    const res = await api.post('/register', {
+      username,
+      password,
+      email
+    });
+    return res.data;
+  } catch (err) {
+    return {
+      success: false,
+      error: err.response?.data?.error || 'Registration failed'
+    };
+  }
+};
+
+/* GET PRODUCT BY ID */
+export const getProductById = async (productId) => {
+  try {
+    const res = await api.get(`/product/${productId}`);
+    return res.data;
+  } catch (err) {
+    return {
+      success: false,
+      error: err.response?.data?.error || 'Failed to load product'
+    };
+  }
+};
+
+/* SEARCH PRODUCTS */
+export const searchProducts = async (query) => {
+  try {
+    const res = await api.post('/search', { query });
+    return res.data;
+  } catch (err) {
+    return {
+      success: false,
+      error: err.response?.data?.error || 'Search failed'
+    };
+  }
+};
