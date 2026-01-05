@@ -221,3 +221,67 @@ export const searchProducts = async (query) => {
     };
   }
 };
+/* ADMIN USERS */
+export const adminGetUsers = async () => {
+  try {
+    const res = await api.get('/admin/users');
+    return res.data;
+  } catch (err) {
+    return { success: false, error: 'Failed to load users' };
+  }
+};
+
+export const adminCreateUser = async (data) => {
+  try {
+    const res = await api.post('/admin/users', data);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};
+
+export const adminUpdateUser = async (id, data) => {
+  try {
+    const res = await api.put(`/admin/users/${id}`, data);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};
+
+export const adminDeleteUser = async (id) => {
+  try {
+    const res = await api.delete(`/admin/users/${id}`);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};
+
+/* ADMIN PRODUCTS */
+export const adminCreateProduct = async (data) => {
+  try {
+    const res = await api.post('/admin/products', data);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};
+
+export const adminUpdateProduct = async (id, data) => {
+  try {
+    const res = await api.put(`/admin/products/${id}`, data);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};
+
+export const adminDeleteProduct = async (id) => {
+  try {
+    const res = await api.delete(`/admin/products/${id}`);
+    return res.data;
+  } catch {
+    return { success: false };
+  }
+};

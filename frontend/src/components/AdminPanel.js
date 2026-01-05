@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  getProducts, 
-  createProduct, 
-  updateProduct, 
-  deleteProduct,
-  getUsers,
-  createUser,
-  updateUser,
-  deleteUser 
+import {
+  getProducts,
+  adminCreateProduct,
+  adminUpdateProduct,
+  adminDeleteProduct,
+  adminGetUsers,
+  adminCreateUser,
+  adminUpdateUser,
+  adminDeleteUser
 } from '../services/api';
+
 
 /*  PATCH  – ADDITIVE IMPORT */
 import { useNavigate } from 'react-router-dom';
