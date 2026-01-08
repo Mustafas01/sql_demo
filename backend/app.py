@@ -16,7 +16,7 @@ from waf import waf_inspect_request
 # ======================
 app = Flask(__name__)
 CORS(app)
-
+CORS(app, supports_credentials=True)
 app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
 jwt = JWTManager(app)
 
