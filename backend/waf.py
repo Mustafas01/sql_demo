@@ -1,28 +1,52 @@
+
 import re
-from flask import request, jsonify
+from flask import request
+from security_logger import log_attack
 
 SQLI_PATTERNS = [
-    r"(\bor\b|\band\b).*(=|like)",
-    r"(--|#|/\*)",
-    r"(union(\s)+select)",
-    r"(select.+from)",
-    r"(insert\s+into)",
-    r"(drop\s+table)",
-    r"(update.+set)",
-    r"(delete\s+from)",
     r"(\%27)|(\')|(\-\-)|(\%23)|(#)",
+    r"(?i)\b(select|union|insert|delete|update|drop|alter)\b",
+    r"(?i)\b(or|and)\b\s+\d+=\d+",
+    r"(?i)information_schema",
+    r"(?i)load_file|outfile"
 ]
 
-def waf_middleware():
-    payload = ""
+SAFE_PATHS = [
+    "/login",
+    "/register",
+    "/auth/me",
+    "/admin/users",
+    "/admin/products"
+]
 
-    if request.method in ["POST", "PUT", "PATCH"]:
-        payload = str(request.get_json(silent=True))
+def is_safe_path(path):
+    return any(path.startswith(p) for p in SAFE_PATHS)
 
-    payload += str(request.args)
+def detect_sqli(value: str) -> bool:
+    if not value:
+        return False
 
     for pattern in SQLI_PATTERNS:
-        if re.search(pattern, payload, re.IGNORECASE):
-            return jsonify({
-                "error": "Malicious request blocked (SQLi detected)"
-            }), 403
+        if re.search(pattern, value):
+            return True
+    return False
+
+def waf_inspect_request():
+    # Skip OPTIONS & safe paths
+    if request.method == "OPTIONS" or is_safe_path(request.path):
+        return None
+
+    # Inspect query params
+    for key, value in request.args.items():
+        if detect_sqli(value):
+            log_attack("SQLi", request.remote_addr, request.path, value)
+            return {"error": "Blocked by WAF"}, 403
+
+    # Inspect JSON body
+    if request.is_json:
+        for key, value in request.get_json().items():
+            if isinstance(value, str) and detect_sqli(value):
+                log_attack("SQLi", request.remote_addr, request.path, value)
+                return {"error": "Blocked by WAF"}, 403
+
+    return None
