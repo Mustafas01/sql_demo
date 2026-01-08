@@ -4,7 +4,11 @@ import os
 
 def init_database():
     """Initialize SQLite database with dummy data"""
-    conn = sqlite3.connect('demo.db')
+    # Get the directory where this script is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(current_dir, 'demo.db')
+    
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
     # Create users table
@@ -29,13 +33,15 @@ def init_database():
         )
     ''')
     
-    # Insert dummy users
+    # Insert dummy users (UPDATE THIS to use werkzeug hashing)
+    from werkzeug.security import generate_password_hash
+    
     users = [
-        ('admin', hash_password('admin123'), 'admin@demo.com', 'admin'),
-        ('john_doe', hash_password('password123'), 'john@demo.com', 'user'),
-        ('jane_smith', hash_password('letmein'), 'jane@demo.com', 'user'),
-        ('test_user', hash_password('test123'), 'test@demo.com', 'user'),
-        ('alice', hash_password('alice2024'), 'alice@demo.com', 'user')
+        ('admin', generate_password_hash('admin123'), 'admin@demo.com', 'admin'),
+        ('john_doe', generate_password_hash('password123'), 'john@demo.com', 'user'),
+        ('jane_smith', generate_password_hash('letmein'), 'jane@demo.com', 'user'),
+        ('test_user', generate_password_hash('test123'), 'test@demo.com', 'user'),
+        ('alice', generate_password_hash('alice2024'), 'alice@demo.com', 'user')
     ]
     
     cursor.executemany(
@@ -61,11 +67,12 @@ def init_database():
     
     conn.commit()
     conn.close()
-
-def hash_password(password):
-    """Simple password hashing for demo purposes"""
-    return hashlib.sha256(password.encode()).hexdigest()
+    print(f"Database initialized at: {db_path}")
 
 def get_db_connection():
     """Get database connection"""
-    return sqlite3.connect('demo.db')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(current_dir, 'demo.db')
+    return sqlite3.connect(db_path)
+
+# Remove the old hash_password function since we're using werkzeug now

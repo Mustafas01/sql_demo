@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import os
 from flask import Blueprint
 from flask_jwt_extended import (
     JWTManager,
@@ -20,8 +21,19 @@ CORS(app)
 CORS(app, supports_credentials=True)
 app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
 jwt = JWTManager(app)
-
-DB_PATH = "demo.db"
+if not os.path.exists(DB_PATH):
+    print(f"Initializing database at {DB_PATH}...")
+    # Make sure database.py is in the same directory
+    try:
+        import database
+        database.init_database()
+        print("Database initialized successfully!")
+    except ImportError as e:
+        print(f"Error importing database module: {e}")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "demo.db")
 # ======================
 # API BLUEPRINT
 # ======================
