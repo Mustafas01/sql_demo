@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from flask import Blueprint
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -11,32 +10,23 @@ from flask_jwt_extended import (
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from waf import waf_inspect_request
-
 # ======================
 # APP INIT
 # ======================
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
-app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
+
+# CORS configuration for React frontend on port 3000
+CORS(app, 
+     origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization", "X-Request-Fingerprint", "X-WAF-Alert"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+
+app.config["JWT_SECRET_KEY"] = "super-secret-key"
 jwt = JWTManager(app)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "demo.db")
-
-# ======================
-# DATABASE INITIALIZATION
-# ======================
-if not os.path.exists(DB_PATH):
-    print(f"Database not found at {DB_PATH}, initializing...")
-    try:
-        import database
-        database.init_database()
-        print("Database initialized successfully!")
-    except ImportError as e:
-        print(f"Error importing database module: {e}")
-    except Exception as e:
-        print(f"Error initializing database: {e}")
 
 # ======================
 # DATABASE CONNECTION
@@ -47,66 +37,76 @@ def get_db():
     return conn
 
 # ======================
-# API BLUEPRINT (for /api/* routes)
+# INITIALIZE DATABASE
 # ======================
-api = Blueprint('api', __name__, url_prefix='/api')
+def init_database():
+    if not os.path.exists(DB_PATH):
+        print(f"Creating database at {DB_PATH}")
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Create users table
+        cursor.execute('''
+            CREATE TABLE users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password TEXT NOT NULL,
+                email TEXT,
+                role TEXT DEFAULT 'user'
+            )
+        ''')
+        
+        # Create products table
+        cursor.execute('''
+            CREATE TABLE products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                description TEXT,
+                price REAL,
+                category TEXT
+            )
+        ''')
+        
+        # Insert admin user
+        admin_hash = generate_password_hash('admin123')
+        cursor.execute(
+            "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)",
+            ('admin', admin_hash, 'admin@demo.com', 'admin')
+        )
+        
+        # Insert regular user
+        user_hash = generate_password_hash('password123')
+        cursor.execute(
+            "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)",
+            ('john_doe', user_hash, 'john@demo.com', 'user')
+        )
+        
+        # Insert sample products
+        products = [
+            ('Laptop', 'High-performance laptop', 999.99, 'Electronics'),
+            ('Smartphone', 'Latest smartphone', 699.99, 'Electronics'),
+            ('Headphones', 'Wireless headphones', 149.99, 'Electronics'),
+            ('Coffee Mug', 'Ceramic coffee mug', 12.99, 'Home'),
+            ('T-Shirt', 'Cotton t-shirt', 19.99, 'Clothing')
+        ]
+        
+        for product in products:
+            cursor.execute(
+                "INSERT INTO products (name, description, price, category) VALUES (?, ?, ?, ?)",
+                product
+            )
+        
+        conn.commit()
+        conn.close()
+        print("Database initialized successfully!")
+    else:
+        print(f"Database already exists at {DB_PATH}")
 
-@api.route("/login", methods=["POST"])
-def api_login():
-    data = request.get_json()
-    
-    if not data:
-        return jsonify({"error": "No JSON data provided"}), 400
-    
-    username = data.get("username")
-    password = data.get("password")
-    
-    if not username or not password:
-        return jsonify({"error": "Username and password required"}), 400
-    
-    print(f"API Login attempt - Username: {username}")
-    
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = cur.fetchone()
-    conn.close()
-    
-    if not user:
-        print(f"User '{username}' not found")
-        return jsonify({"error": "Invalid credentials"}), 401
-    
-    print(f"User found: {user['username']}, checking password...")
-    
-    # Check password using werkzeug
-    if not check_password_hash(user["password"], password):
-        print("Password incorrect")
-        return jsonify({"error": "Invalid credentials"}), 401
-    
-    print("Password correct, generating token...")
-    
-    token = create_access_token(identity={
-        "id": user["id"],
-        "username": user["username"],
-        "role": user["role"]
-    })
-    
-    return jsonify({"token": token, "user": {"username": user["username"], "role": user["role"]}})
-
-# Register the blueprint
-app.register_blueprint(api)
+# Initialize database
+init_database()
 
 # ======================
-# WAF MIDDLEWARE
-# ======================
-@app.before_request
-def run_waf():
-    result = waf_inspect_request()
-    if result:
-        return result
-
-# ======================
-# HELPERS
+# HELPER FUNCTIONS
 # ======================
 def admin_required():
     identity = get_jwt_identity()
@@ -115,84 +115,135 @@ def admin_required():
     return None
 
 # ======================
-# CORS PRE-FLIGHT HANDLER 
+# CORS PRE-FLIGHT HANDLER
 # ======================
 @app.before_request
-def handle_options():
+def handle_cors():
     if request.method == "OPTIONS":
-        response = app.make_response("")
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        response = jsonify({"status": "ok"})
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Request-Fingerprint, X-WAF-Alert"
         response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
         return response
 
 # ======================
-# AUTH
+# AUTH ROUTES
 # ======================
-@app.route("/register", methods=["POST"])
-def register():
-    data = request.get_json()
-
-    username = data.get("username")
-    password = data.get("password")
-
-    if not username or not password:
-        return jsonify({"error": "Missing fields"}), 400
-
-    hashed_pw = generate_password_hash(password)
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    try:
-        cur.execute(
-            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-            (username, hashed_pw, "user")
-        )
-        conn.commit()
-    except sqlite3.IntegrityError:
-        return jsonify({"error": "User already exists"}), 409
-    finally:
-        conn.close()
-
-    return jsonify({"message": "User registered"}), 201
-
-
-@app.route("/login", methods=["POST"])
+@app.route("/api/login", methods=["POST", "OPTIONS"])
 def login():
-    data = request.get_json()
+    try:
+        if request.method == "OPTIONS":
+            return jsonify({"status": "ok"})
+            
+        if not request.is_json:
+            return jsonify({"error": "Missing JSON in request"}), 400
+            
+        data = request.get_json()
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        
+        print(f"🔐 Login attempt - Username: '{username}'")
+        
+        if not username or not password:
+            return jsonify({"error": "Username and password required"}), 400
+        
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE username = ?", (username,))
+        user = cur.fetchone()
+        conn.close()
+        
+        if not user:
+            print(f"❌ User '{username}' not found")
+            return jsonify({"error": "Invalid credentials"}), 401
+        
+        print(f"✅ User found: {user['username']}")
+        
+        if check_password_hash(user["password"], password):
+            print(f"✅ Password correct for {username}")
+            token = create_access_token(identity={
+                "id": user["id"],
+                "username": user["username"],
+                "role": user["role"]
+            })
+            return jsonify({
+                "success": True,
+                "token": token,
+                "user": {
+                    "id": user["id"],
+                    "username": user["username"],
+                    "role": user["role"]
+                }
+            })
+        else:
+            print(f"❌ Password incorrect for {username}")
+            return jsonify({"error": "Invalid credentials"}), 401
+            
+    except Exception as e:
+        print(f"❌ Login error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
-    username = data.get("username")
-    password = data.get("password")
+@app.route("/api/register", methods=["POST", "OPTIONS"])
+def register():
+    try:
+        if request.method == "OPTIONS":
+            return jsonify({"status": "ok"})
+            
+        data = request.get_json()
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        email = data.get("email", "")
+        
+        print(f"📝 Registration attempt - Username: '{username}'")
+        
+        if not username or not password:
+            return jsonify({"error": "Username and password required"}), 400
+        
+        if len(password) < 3:
+            return jsonify({"error": "Password too short"}), 400
+        
+        hashed_pw = generate_password_hash(password)
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        try:
+            cur.execute(
+                "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)",
+                (username, hashed_pw, email, "user")
+            )
+            conn.commit()
+            print(f"✅ User registered: {username}")
+            return jsonify({
+                "success": True,
+                "message": "User registered successfully"
+            }), 201
+            
+        except sqlite3.IntegrityError:
+            return jsonify({"error": "Username already exists"}), 409
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        print(f"❌ Registration error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
-    user = cur.fetchone()
-    conn.close()
-
-    if not user or not check_password_hash(user["password"], password):
-        return jsonify({"error": "Invalid credentials"}), 401
-
-    token = create_access_token(identity={
-        "id": user["id"],
-        "username": user["username"],
-        "role": user["role"]
-    })
-
-    return jsonify({"token": token})
-
-
-@app.route("/auth/me", methods=["GET"])
+@app.route("/api/auth/me", methods=["GET", "OPTIONS"])
 @jwt_required()
 def me():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
     return jsonify(get_jwt_identity())
 
 # ======================
-# PRODUCTS (PUBLIC)
+# PRODUCT ROUTES
 # ======================
-@app.route("/products", methods=["GET"])
+@app.route("/api/products", methods=["GET", "OPTIONS"])
 def get_products():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM products")
@@ -200,9 +251,11 @@ def get_products():
     conn.close()
     return jsonify(products)
 
-
-@app.route("/products/<int:pid>", methods=["GET"])
+@app.route("/api/products/<int:pid>", methods=["GET", "OPTIONS"])
 def get_product(pid):
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM products WHERE id = ?", (pid,))
@@ -214,51 +267,187 @@ def get_product(pid):
 
     return jsonify(dict(product))
 
+@app.route("/api/search", methods=["POST", "OPTIONS"])
+def search_products():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
+    try:
+        data = request.get_json()
+        query = data.get("query", "").strip()
+        
+        if not query:
+            return jsonify([])
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        cur.execute(
+            "SELECT * FROM products WHERE name LIKE ? OR description LIKE ?",
+            (f'%{query}%', f'%{query}%')
+        )
+        
+        products = [dict(row) for row in cur.fetchall()]
+        conn.close()
+        
+        return jsonify(products)
+        
+    except Exception as e:
+        print(f"Search error: {str(e)}")
+        return jsonify({"error": "Search failed"}), 500
+
 # ======================
-# ADMIN – USERS
+# ADMIN ROUTES
 # ======================
-@app.route("/admin/users", methods=["GET"])
+@app.route("/api/admin/users", methods=["POST", "OPTIONS"])
+@jwt_required()
+def admin_create_user():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
+    guard = admin_required()
+    if guard:
+        return guard
+
+    try:
+        data = request.get_json()
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        email = data.get("email", "")
+        role = data.get("role", "user")
+        
+        if not username or not password:
+            return jsonify({"error": "Username and password required"}), 400
+        
+        hashed_pw = generate_password_hash(password)
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        try:
+            cur.execute(
+                "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)",
+                (username, hashed_pw, email, role)
+            )
+            conn.commit()
+            return jsonify({"message": "User created successfully"}), 201
+        except sqlite3.IntegrityError:
+            return jsonify({"error": "Username already exists"}), 409
+        finally:
+            conn.close()
+            
+    except Exception as e:
+        print(f"Admin create user error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route("/api/admin/users/<int:uid>", methods=["PUT", "OPTIONS"])
+@jwt_required()
+def admin_update_user(uid):
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
+    guard = admin_required()
+    if guard:
+        return guard
+
+    try:
+        data = request.get_json()
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        # Check if user exists
+        cur.execute("SELECT * FROM users WHERE id = ?", (uid,))
+        if not cur.fetchone():
+            conn.close()
+            return jsonify({"error": "User not found"}), 404
+        
+        # Update user
+        update_fields = []
+        update_values = []
+        
+        if "username" in data:
+            update_fields.append("username = ?")
+            update_values.append(data["username"])
+        
+        if "email" in data:
+            update_fields.append("email = ?")
+            update_values.append(data["email"])
+        
+        if "role" in data:
+            update_fields.append("role = ?")
+            update_values.append(data["role"])
+        
+        if "password" in data and data["password"]:
+            update_fields.append("password = ?")
+            update_values.append(generate_password_hash(data["password"]))
+        
+        if not update_fields:
+            conn.close()
+            return jsonify({"error": "No fields to update"}), 400
+        
+        update_values.append(uid)
+        query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = ?"
+        
+        cur.execute(query, update_values)
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"message": "User updated"})
+        
+    except Exception as e:
+        print(f"Admin update user error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+@app.route("/api/admin/users", methods=["GET", "OPTIONS"])
 @jwt_required()
 def admin_get_users():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
     guard = admin_required()
     if guard:
         return guard
 
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT id, username, role FROM users")
+    cur.execute("SELECT id, username, email, role FROM users")
     users = [dict(row) for row in cur.fetchall()]
     conn.close()
 
     return jsonify(users)
 
-# ======================
-# ADMIN – PRODUCTS
-# ======================
-@app.route("/admin/products", methods=["POST"])
+@app.route("/api/admin/products", methods=["POST", "OPTIONS"])
 @jwt_required()
 def admin_create_product():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
     guard = admin_required()
     if guard:
         return guard
 
     data = request.get_json()
+    
+    if not data.get("name") or not data.get("price"):
+        return jsonify({"error": "Name and price are required"}), 400
 
     conn = get_db()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO products (name, price, description) VALUES (?, ?, ?)",
-        (data["name"], data["price"], data.get("description"))
+        "INSERT INTO products (name, price, description, category) VALUES (?, ?, ?, ?)",
+        (data["name"], data["price"], data.get("description", ""), data.get("category", "General"))
     )
     conn.commit()
     conn.close()
 
     return jsonify({"message": "Product created"}), 201
 
-
-@app.route("/admin/products/<int:pid>", methods=["DELETE"])
+@app.route("/api/admin/products/<int:pid>", methods=["DELETE", "OPTIONS"])
 @jwt_required()
 def admin_delete_product(pid):
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
     guard = admin_required()
     if guard:
         return guard
@@ -272,14 +461,67 @@ def admin_delete_product(pid):
     return jsonify({"message": "Product deleted"})
 
 # ======================
+# TEST ROUTES
+# ======================
+@app.route("/api/test-db", methods=["GET", "OPTIONS"])
+def test_db():
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+        
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        
+        cur.execute("SELECT COUNT(*) as count FROM users")
+        user_count = cur.fetchone()["count"]
+        
+        cur.execute("SELECT username, role FROM users")
+        users = cur.fetchall()
+        
+        cur.execute("SELECT COUNT(*) as count FROM products")
+        product_count = cur.fetchone()["count"]
+        
+        conn.close()
+        
+        return jsonify({
+            "database": DB_PATH,
+            "database_exists": os.path.exists(DB_PATH),
+            "users_count": user_count,
+            "users": [dict(user) for user in users],
+            "products_count": product_count,
+            "status": "ok"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# ======================
+# HEALTH CHECK
+# ======================
+@app.route("/api/health", methods=["GET"])
+def health():
+    return jsonify({"status": "healthy", "service": "sql_demo_api"})
+
+# ======================
 # MAIN
 # ======================
 if __name__ == "__main__":
-    # Verify database exists
-    if not os.path.exists(DB_PATH):
-        print(f"ERROR: Database not found at {DB_PATH}")
-        print("Please run: python database.py")
+    print(f"\n{'='*60}")
+    print("🚀 SQL Injection Demo - Flask Backend")
+    print(f"{'='*60}")
+    print(f"📁 Database: {DB_PATH}")
+    print(f"🌐 Backend API: http://127.0.0.1:5000")
+    print(f"🌐 Frontend: http://localhost:3000")
+    print(f"\n🔗 API Endpoints:")
+    print(f"   POST /api/login          - User login")
+    print(f"   POST /api/register       - User registration")
+    print(f"   GET  /api/products       - List all products")
+    print(f"   GET  /api/admin/users    - Admin: List users (JWT required)")
+    print(f"   GET  /api/test-db        - Test database connection")
+    print(f"\n👤 Test Credentials:")
+    print(f"   Admin:    admin / admin123")
+    print(f"   Regular:  john_doe / password123")
+    print(f"\n⚠️  IMPORTANT: Make sure React frontend is running on port 3000")
+    print(f"   Run in another terminal: cd frontend && npm start")
+    print(f"{'='*60}\n")
     
-    print(f"Starting Flask server with database at: {DB_PATH}")
-    print(f"Database exists: {os.path.exists(DB_PATH)}")
-    app.run(debug=True, port=5000)
+    app.run(debug=True, host="127.0.0.1", port=5000)
