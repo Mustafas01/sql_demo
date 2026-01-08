@@ -21,7 +21,7 @@ CORS(app, supports_credentials=True)
 app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
 jwt = JWTManager(app)
 
-DB_PATH = "database.db"
+DB_PATH = "demo.db"
 # ======================
 # API BLUEPRINT
 # ======================
@@ -111,10 +111,9 @@ def register():
     return jsonify({"message": "User registered"}), 201
 
 
-@app.before_request
-def handle_options():
-    if request.method == "OPTIONS":
-        return "", 200
+# ======================
+# CORS PRE-FLIGHT HANDLER 
+#=======================
 
 @app.before_request
 def handle_options():
@@ -238,7 +237,11 @@ def admin_delete_product(pid):
     conn.close()
 
     return jsonify({"message": "Product deleted"})
-
+# ======================
+if not os.path.exists("demo.db"):
+    print("Initializing database...")
+    import database
+    database.init_database()
 # ======================
 # MAIN
 # ======================
