@@ -17,13 +17,18 @@ from waf import waf_inspect_request
 # APP INIT
 # ======================
 app = Flask(__name__)
-CORS(app)
 CORS(app, supports_credentials=True)
 app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
 jwt = JWTManager(app)
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "demo.db")
+
+# ======================
+# DATABASE INITIALIZATION
+# ======================
 if not os.path.exists(DB_PATH):
-    print(f"Initializing database at {DB_PATH}...")
-    # Make sure database.py is in the same directory
+    print(f"Database not found at {DB_PATH}, initializing...")
     try:
         import database
         database.init_database()
@@ -32,46 +37,64 @@ if not os.path.exists(DB_PATH):
         print(f"Error importing database module: {e}")
     except Exception as e:
         print(f"Error initializing database: {e}")
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "demo.db")
+
 # ======================
-# API BLUEPRINT
+# DATABASE CONNECTION
+# ======================
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# ======================
+# API BLUEPRINT (for /api/* routes)
 # ======================
 api = Blueprint('api', __name__, url_prefix='/api')
 
 @api.route("/login", methods=["POST"])
 def api_login():
     data = request.get_json()
-
+    
+    if not data:
+        return jsonify({"error": "No JSON data provided"}), 400
+    
     username = data.get("username")
     password = data.get("password")
-
+    
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
+    
+    print(f"API Login attempt - Username: {username}")
+    
     conn = get_db()
     cur = conn.cursor()
     cur.execute("SELECT * FROM users WHERE username = ?", (username,))
     user = cur.fetchone()
     conn.close()
-
-    if not user or not check_password_hash(user["password"], password):
+    
+    if not user:
+        print(f"User '{username}' not found")
         return jsonify({"error": "Invalid credentials"}), 401
-
+    
+    print(f"User found: {user['username']}, checking password...")
+    
+    # Check password using werkzeug
+    if not check_password_hash(user["password"], password):
+        print("Password incorrect")
+        return jsonify({"error": "Invalid credentials"}), 401
+    
+    print("Password correct, generating token...")
+    
     token = create_access_token(identity={
         "id": user["id"],
         "username": user["username"],
         "role": user["role"]
     })
-
-    return jsonify({"token": token})
+    
+    return jsonify({"token": token, "user": {"username": user["username"], "role": user["role"]}})
 
 # Register the blueprint
 app.register_blueprint(api)
-# ======================
-# DATABASE
-# ======================
-def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
 
 # ======================
 # WAF MIDDLEWARE
@@ -90,6 +113,18 @@ def admin_required():
     if not identity or identity.get("role") != "admin":
         return jsonify({"error": "Admin access required"}), 403
     return None
+
+# ======================
+# CORS PRE-FLIGHT HANDLER 
+# ======================
+@app.before_request
+def handle_options():
+    if request.method == "OPTIONS":
+        response = app.make_response("")
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        return response
 
 # ======================
 # AUTH
@@ -123,19 +158,6 @@ def register():
     return jsonify({"message": "User registered"}), 201
 
 
-# ======================
-# CORS PRE-FLIGHT HANDLER 
-#=======================
-
-@app.before_request
-def handle_options():
-    if request.method == "OPTIONS":
-        response = app.make_response("")
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        return response
-
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -152,7 +174,6 @@ def login():
     if not user or not check_password_hash(user["password"], password):
         return jsonify({"error": "Invalid credentials"}), 401
 
-    # 🔑 FIXED JWT IDENTITY
     token = create_access_token(identity={
         "id": user["id"],
         "username": user["username"],
@@ -249,13 +270,16 @@ def admin_delete_product(pid):
     conn.close()
 
     return jsonify({"message": "Product deleted"})
-# ======================
-if not os.path.exists("demo.db"):
-    print("Initializing database...")
-    import database
-    database.init_database()
+
 # ======================
 # MAIN
 # ======================
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Verify database exists
+    if not os.path.exists(DB_PATH):
+        print(f"ERROR: Database not found at {DB_PATH}")
+        print("Please run: python database.py")
+    
+    print(f"Starting Flask server with database at: {DB_PATH}")
+    print(f"Database exists: {os.path.exists(DB_PATH)}")
+    app.run(debug=True, port=5000)
