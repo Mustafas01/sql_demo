@@ -1,4 +1,3 @@
-
 import re
 from flask import request
 from security_logger import log_attack
@@ -23,7 +22,7 @@ def is_safe_path(path):
     return any(path.startswith(p) for p in SAFE_PATHS)
 
 def detect_sqli(value: str) -> bool:
-    if not value:
+    if not value or not isinstance(value, str):
         return False
 
     for pattern in SQLI_PATTERNS:
@@ -36,17 +35,29 @@ def waf_inspect_request():
     if request.method == "OPTIONS" or is_safe_path(request.path):
         return None
 
+    client_ip = request.remote_addr or "unknown"
+
     # Inspect query params
     for key, value in request.args.items():
         if detect_sqli(value):
-            log_attack("SQLi", request.remote_addr, request.path, value)
+            log_attack(
+                ip=client_ip,
+                payload=value,
+                reason=f"SQLi detected in query param '{key}' at {request.path}"
+            )
             return {"error": "Blocked by WAF"}, 403
 
     # Inspect JSON body
     if request.is_json:
-        for key, value in request.get_json().items():
-            if isinstance(value, str) and detect_sqli(value):
-                log_attack("SQLi", request.remote_addr, request.path, value)
-                return {"error": "Blocked by WAF"}, 403
+        data = request.get_json(silent=True) or {}
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if detect_sqli(value):
+                    log_attack(
+                        ip=client_ip,
+                        payload=value,
+                        reason=f"SQLi detected in JSON field '{key}' at {request.path}"
+                    )
+                    return {"error": "Blocked by WAF"}, 403
 
     return None

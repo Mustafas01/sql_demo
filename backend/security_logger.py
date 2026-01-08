@@ -1,17 +1,21 @@
-import logging
-from flask import request
+import sqlite3
+from datetime import datetime
 
-logging.basicConfig(
-    filename="security.log",
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
+DB_PATH = "database.db"
 
-def log_request(response):
-    logging.info(
-        f"IP={request.remote_addr} "
-        f"METHOD={request.method} "
-        f"PATH={request.path} "
-        f"STATUS={response.status_code}"
-    )
-    return response
+def log_attack(ip, payload, reason):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO security_logs (ip, payload, reason, timestamp)
+        VALUES (?, ?, ?, ?)
+    """, (
+        ip,
+        payload,
+        reason,
+        datetime.utcnow().isoformat()
+    ))
+
+    conn.commit()
+    conn.close()
