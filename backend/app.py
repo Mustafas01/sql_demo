@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask import Blueprint
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -21,7 +22,37 @@ app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change in prod
 jwt = JWTManager(app)
 
 DB_PATH = "database.db"
+# ======================
+# API BLUEPRINT
+# ======================
+api = Blueprint('api', __name__, url_prefix='/api')
 
+@api.route("/login", methods=["POST"])
+def api_login():
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE username = ?", (username,))
+    user = cur.fetchone()
+    conn.close()
+
+    if not user or not check_password_hash(user["password"], password):
+        return jsonify({"error": "Invalid credentials"}), 401
+
+    token = create_access_token(identity={
+        "id": user["id"],
+        "username": user["username"],
+        "role": user["role"]
+    })
+
+    return jsonify({"token": token})
+
+# Register the blueprint
+app.register_blueprint(api)
 # ======================
 # DATABASE
 # ======================
