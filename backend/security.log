@@ -1,0 +1,32 @@
+2026-01-09 13:29:45,902 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2026-01-09 13:29:45,902 | INFO | [33mPress CTRL+C to quit[0m
+2026-01-09 13:29:45,903 | INFO |  * Restarting with stat
+2026-01-09 13:29:46,729 | WARNING |  * Debugger is active!
+2026-01-09 13:29:46,734 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 13:30:33,967 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 13:30:33,967 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:33] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 13:30:34,224 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 13:30:34,224 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:34] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 13:30:41,842 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 13:30:41,843 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:41] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 13:30:42,148 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 13:30:42,148 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:42] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 13:30:47,841 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 13:30:47,841 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:47] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 13:30:48,147 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 13:30:48,147 | INFO | 127.0.0.1 - - [09/Jan/2026 13:30:48] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 13:31:01,086 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 13:31:01,086 | INFO | 127.0.0.1 - - [09/Jan/2026 13:31:01] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 13:31:01,391 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 13:31:01,391 | INFO | 127.0.0.1 - - [09/Jan/2026 13:31:01] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 13:34:41,669 | INFO |  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-09 13:34:41,758 | INFO |  * Restarting with stat
+2026-01-09 13:34:42,127 | WARNING |  * Debugger is active!
+2026-01-09 13:34:42,131 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 13:34:52,581 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 13:34:52,582 | INFO | 127.0.0.1 - - [09/Jan/2026 13:34:52] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 13:34:52,836 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 13:34:52,837 | INFO | 127.0.0.1 - - [09/Jan/2026 13:34:52] "POST /api/login HTTP/1.1" 200 -

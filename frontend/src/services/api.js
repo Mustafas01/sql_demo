@@ -175,3 +175,45 @@ export const deleteUser = async (id) => {
     return { success: false };
   }
 };
+/**
+ * Search products by name/description (client-side filtering)
+ * @param {string} query - search term
+ * @returns {Promise<Array>} filtered products
+ */
+export const searchProducts = async (query = '') => {
+  try {
+    const allProducts = await getProducts();
+    if (!query?.trim()) {
+      return allProducts;
+    }
+    const q = query.toLowerCase();
+    return allProducts.filter(product =>
+      product?.name?.toLowerCase().includes(q) ||
+      product?.description?.toLowerCase().includes(q)
+    );
+  } catch (error) {
+    console.error('searchProducts failed:', error);
+    return [];
+  }
+};
+
+/**
+ * Get single product by ID (client-side lookup)
+ * @param {string|number} id - product ID
+ * @returns {Promise<Object|null>} product or null
+ */
+export const getProductById = async (id) => {
+  try {
+    const allProducts = await getProducts();
+    return allProducts.find(p => String(p?.id) === String(id)) || null;
+  } catch (error) {
+    console.error('getProductById failed:', error);
+    return null;
+  }
+};
+
+/**
+ * Register new user — alias to existing createUser
+ * (most likely the same operation in this demo)
+ */
+export const register = createUser;
