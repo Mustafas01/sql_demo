@@ -9,6 +9,7 @@ from flask_jwt_extended import (
 )
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
+from waf import waf_inspect_request
 
 # ======================
 # APP INIT
@@ -115,10 +116,15 @@ def admin_required():
     return None
 
 # ======================
-# CORS PRE-FLIGHT HANDLER
+# CORS PRE-FLIGHT HANDLER & WAF
 # ======================
 @app.before_request
-def handle_cors():
+def handle_cors_and_waf():
+    # Run WAF inspection
+    waf_result = waf_inspect_request()
+    if waf_result:
+        return waf_result
+
     if request.method == "OPTIONS":
         response = jsonify({"status": "ok"})
         response.headers["Access-Control-Allow-Origin"] = "http://localhost:3000"

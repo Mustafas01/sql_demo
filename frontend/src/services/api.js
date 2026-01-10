@@ -6,26 +6,24 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:5000';
 
 const SQLI_PATTERNS = [
-  // Look for SQL injection with context, not just special characters
-  /('|\%27)\s*(OR|AND)\s*('|\%27)?[0-9=]/i,  // ' OR '1'='1 or ' OR 1=1
-  /('|\%27)\s*(;|--|\#)/i,  // '; DROP or '-- comment
-  /UNION\s+(ALL\s+)?SELECT/i,  // UNION SELECT attacks
-  /SELECT\s+.*\s+FROM\s+/i,  // SELECT ... FROM (must have FROM)
-  /INSERT\s+INTO\s+/i,  // INSERT INTO attacks
-  /DROP\s+(TABLE|DATABASE)/i,  // DROP TABLE/DATABASE
-  /UPDATE\s+\w+\s+SET/i,  // UPDATE table SET
-  /DELETE\s+FROM\s+/i,  // DELETE FROM attacks
-  /EXEC(UTE)?\s*\(/i,  // EXECUTE commands
-  /;\s*(DROP|DELETE|UPDATE|INSERT)/i  // Command chaining
+  // Only match actual SQL injection patterns, not normal text/numbers
+  /('|\%27)\s*(OR|AND)\s+\d+\s*=/i,  // ' OR 1= or ' AND 1=
+  /('|\%27)\s*(;|--)\s*/i,  // '; or '-- (semicolon or double dash followed by space)
+  /\bUNION\s+(ALL\s+)?SELECT\b/i,  // UNION SELECT
+  /\bSELECT\s+.*\s+FROM\s+/i,  // SELECT ... FROM
+  /\bINSERT\s+INTO\b/i,  // INSERT INTO
+  /\bDROP\s+(TABLE|DATABASE)\b/i,  // DROP TABLE/DATABASE
+  /\bUPDATE\s+\w+\s+SET\b/i,  // UPDATE table SET
+  /\bDELETE\s+FROM\b/i,  // DELETE FROM
+  /\bEXEC(UTE)?\s*\(/i,  // EXECUTE
+  /;\s*(DROP|DELETE|UPDATE|INSERT|CREATE)\b/i  // Command chaining
 ];
 
 const detectSQLInjection = (payload) => {
   if (!payload) return false;
-  const data = JSON.stringify(payload);
+  const dataStr = typeof payload === 'string' ? payload : JSON.stringify(payload);
 
-  // Only flag if we see actual SQL injection patterns with context
-  // Not just the presence of quotes or dashes
-  return SQLI_PATTERNS.some((pattern) => pattern.test(data));
+  return SQLI_PATTERNS.some((pattern) => pattern.test(dataStr));
 };
 
 /* ================================
