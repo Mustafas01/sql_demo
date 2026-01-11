@@ -6,7 +6,8 @@ import {
   adminGetUsers,
   adminDeleteUser,
   adminCreateUser,
-  adminUpdateUser
+  adminUpdateUser,
+  adminUpdateProduct
 } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -98,7 +99,11 @@ const AdminPanel = ({ user, onBack }) => {
         setTimeout(() => navigate("/"), 1500);
         return;
       }
-      setMessage('Failed to load users');
+      if (err?.wafBlocked) {
+        setMessage(err.message || 'Malicious input logged and block the attempt');
+      } else {
+        setMessage('Failed to load users');
+      }
     } finally {
       setLoading(false);
     }
@@ -108,9 +113,8 @@ const AdminPanel = ({ user, onBack }) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
-    
+
     try {
-      // Convert price to number
       const productData = {
         ...productForm,
         price: parseFloat(productForm.price) || 0
@@ -118,11 +122,9 @@ const AdminPanel = ({ user, onBack }) => {
 
       let result;
       if (editingProduct) {
-        // For update, you need to add adminUpdateProduct to your api.js
-        // For now, we'll just create new products
-        result = await adminCreateProduct(productData);
+        result = await adminUpdateProduct(editingProduct.id, productData);
         if (result && result.message) {
-          setMessage('Product created successfully!');
+          setMessage('Product updated successfully!');
         }
       } else {
         result = await adminCreateProduct(productData);
@@ -139,7 +141,11 @@ const AdminPanel = ({ user, onBack }) => {
         setMessage(result?.error || 'Operation failed');
       }
     } catch (err) {
-      setMessage('Operation failed');
+      if (err?.wafBlocked) {
+        setMessage(err.message || 'Malicious input logged and block the attempt');
+      } else {
+        setMessage('Operation failed');
+      }
       console.error('Product operation error:', err);
     } finally {
       setLoading(false);
@@ -173,7 +179,11 @@ const AdminPanel = ({ user, onBack }) => {
         setMessage(result?.error || 'Operation failed');
       }
     } catch (err) {
-      setMessage('Operation failed');
+      if (err?.wafBlocked) {
+        setMessage(err.message || 'Malicious input logged and block the attempt');
+      } else {
+        setMessage('Operation failed');
+      }
       console.error('User operation error:', err);
     } finally {
       setLoading(false);

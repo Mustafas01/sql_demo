@@ -448,6 +448,63 @@ def admin_create_product():
 
     return jsonify({"message": "Product created"}), 201
 
+@app.route("/api/admin/products/<int:pid>", methods=["PUT", "OPTIONS"])
+@jwt_required()
+def admin_update_product(pid):
+    if request.method == "OPTIONS":
+        return jsonify({"status": "ok"})
+
+    guard = admin_required()
+    if guard:
+        return guard
+
+    try:
+        data = request.get_json()
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute("SELECT * FROM products WHERE id = ?", (pid,))
+        if not cur.fetchone():
+            conn.close()
+            return jsonify({"error": "Product not found"}), 404
+
+        update_fields = []
+        update_values = []
+
+        if "name" in data:
+            update_fields.append("name = ?")
+            update_values.append(data["name"])
+
+        if "description" in data:
+            update_fields.append("description = ?")
+            update_values.append(data["description"])
+
+        if "price" in data:
+            update_fields.append("price = ?")
+            update_values.append(data["price"])
+
+        if "category" in data:
+            update_fields.append("category = ?")
+            update_values.append(data["category"])
+
+        if not update_fields:
+            conn.close()
+            return jsonify({"error": "No fields to update"}), 400
+
+        update_values.append(pid)
+        query = f"UPDATE products SET {', '.join(update_fields)} WHERE id = ?"
+
+        cur.execute(query, update_values)
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": "Product updated"})
+
+    except Exception as e:
+        print(f"Admin update product error: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
 @app.route("/api/admin/products/<int:pid>", methods=["DELETE", "OPTIONS"])
 @jwt_required()
 def admin_delete_product(pid):

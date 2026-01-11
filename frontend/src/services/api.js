@@ -74,6 +74,11 @@ api.interceptors.response.use(
       }
       if (status === 403) {
         console.warn('[SECURITY] Access forbidden – possible WAF block');
+        const errorData = error.response.data;
+        if (errorData?.error === 'Blocked by WAF') {
+          error.wafBlocked = true;
+          error.message = 'Malicious input logged and block the attempt';
+        }
       }
       if (status === 429) {
         console.warn('[WAF] Rate limit triggered');
