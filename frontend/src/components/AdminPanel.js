@@ -4,7 +4,9 @@ import {
   adminCreateProduct,
   adminDeleteProduct,
   adminGetUsers,
-  adminDeleteUser
+  adminDeleteUser,
+  adminCreateUser,
+  adminUpdateUser
 } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -148,13 +150,31 @@ const AdminPanel = ({ user, onBack }) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
-    
+
     try {
-      // Note: You don't have adminCreateUser in your api.js
-      // For now, we'll just show a message
-      setMessage('User creation requires adminCreateUser API function');
+      let result;
+      if (editingUser) {
+        result = await adminUpdateUser(editingUser.id, userForm);
+        if (result && result.message) {
+          setMessage('User updated successfully!');
+        }
+      } else {
+        result = await adminCreateUser(userForm);
+        if (result && result.message) {
+          setMessage('User created successfully!');
+        }
+      }
+
+      if (result && result.message) {
+        setUserForm({ username: '', password: '', email: '', role: 'user' });
+        setEditingUser(null);
+        loadUsers();
+      } else {
+        setMessage(result?.error || 'Operation failed');
+      }
     } catch (err) {
       setMessage('Operation failed');
+      console.error('User operation error:', err);
     } finally {
       setLoading(false);
     }
