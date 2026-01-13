@@ -7,7 +7,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLACKLIST_PATH = os.path.join(BASE_DIR, "blacklist.txt")
 
 SQLI_PATTERNS = [
+    # Classic boolean-based injections like ' OR 1=1, ' AND 1=1, etc.
     r"(?i)('|%27)\s*(OR|AND)\s+\d+\s*=",  # ' OR 1= or ' AND 1=
+    # Very common teaching/demo pattern: ' OR '1'='1 (also matches inside longer strings like "admin' OR '1'='1'")
+    r"(?i)'\s*OR\s*'1'='1",  # ' OR '1'='1
     r"(?i)('|%27)\s*(;|--)\s",  # '; or '-- followed by space
     r"(?i)\bUNION\s+(ALL\s+)?SELECT\b",  # UNION SELECT
     r"(?i)\bSELECT\s+.*\s+FROM\s+",  # SELECT ... FROM

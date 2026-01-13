@@ -8,14 +8,15 @@ const API_BASE_URL = 'http://localhost:5000';
 const SQLI_PATTERNS = [
   // Only match actual SQL injection patterns, not normal text/numbers
   /('|\%27)\s*(OR|AND)\s+\d+\s*=/i,  // ' OR 1= or ' AND 1=
-  /('|\%27)\s*(;|--)\s*/i,  // '; or '-- (semicolon or double dash followed by space)
-  /\bUNION\s+(ALL\s+)?SELECT\b/i,  // UNION SELECT
-  /\bSELECT\s+.*\s+FROM\s+/i,  // SELECT ... FROM
-  /\bINSERT\s+INTO\b/i,  // INSERT INTO
-  /\bDROP\s+(TABLE|DATABASE)\b/i,  // DROP TABLE/DATABASE
-  /\bUPDATE\s+\w+\s+SET\b/i,  // UPDATE table SET
-  /\bDELETE\s+FROM\b/i,  // DELETE FROM
-  /\bEXEC(UTE)?\s*\(/i,  // EXECUTE
+  /'\s*OR\s*'1'='1/i,                  // classic demo: ' OR '1'='1 (also matches inside longer strings)
+  /('|\%27)\s*(;|--)\s*/i,            // '; or '-- (semicolon or double dash followed by space)
+  /\bUNION\s+(ALL\s+)?SELECT\b/i,     // UNION SELECT
+  /\bSELECT\s+.*\s+FROM\s+/i,         // SELECT ... FROM
+  /\bINSERT\s+INTO\b/i,                // INSERT INTO
+  /\bDROP\s+(TABLE|DATABASE)\b/i,      // DROP TABLE/DATABASE
+  /\bUPDATE\s+\w+\s+SET\b/i,         // UPDATE table SET
+  /\bDELETE\s+FROM\b/i,               // DELETE FROM
+  /\bEXEC(UTE)?\s*\(/i,               // EXECUTE
   /;\s*(DROP|DELETE|UPDATE|INSERT|CREATE)\b/i  // Command chaining
 ];
 
