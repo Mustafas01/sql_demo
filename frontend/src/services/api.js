@@ -217,6 +217,42 @@ export const adminUpdateUser = async (id, data) => {
     return { success: false, error: 'Failed to update user' };
   }
 };
+
+export const createUser = async (data) => {
+  try {
+    const res = await api.post('/api/users', data);
+    return res.data;
+  } catch (err) {
+    return { success: false, error: 'Failed to create user' };
+  }
+};
+
+export const updateUser = async (id, data) => {
+  try {
+    const res = await api.put(`/api/users/${id}`, data);
+    return res.data;
+  } catch (err) {
+    return { success: false, error: 'Failed to update user' };
+  }
+};
+
+export const getUsers = async () => {
+  try {
+    const res = await api.get('/api/users');
+    return res.data;
+  } catch (err) {
+    return { success: false, error: 'Failed to load users' };
+  }
+};
+
+export const deleteUser = async (id) => {
+  try {
+    const res = await api.delete(`/api/users/${id}`);
+    return res.data;
+  } catch (err) {
+    return { success: false, error: 'Failed to delete user' };
+  }
+};
 export const adminDeleteProduct = async (id) => {
   try {
     const res = await api.delete(`/api/admin/products/${id}`);

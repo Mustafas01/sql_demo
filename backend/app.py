@@ -161,13 +161,13 @@ def login():
         conn.close()
         
         if not user:
-            print(f"❌ User '{username}' not found")
+            print(f"[ERROR] User '{username}' not found")
             return jsonify({"error": "Invalid credentials"}), 401
-        
-        print(f"✅ User found: {user['username']}")
-        
+
+        print(f"[OK] User found: {user['username']}")
+
         if check_password_hash(user["password"], password):
-            print(f"✅ Password correct for {username}")
+            print(f"[OK] Password correct for {username}")
             token = create_access_token(identity={
                 "id": user["id"],
                 "username": user["username"],
@@ -183,11 +183,11 @@ def login():
                 }
             })
         else:
-            print(f"❌ Password incorrect for {username}")
+            print(f"[ERROR] Password incorrect for {username}")
             return jsonify({"error": "Invalid credentials"}), 401
-            
+
     except Exception as e:
-        print(f"❌ Login error: {str(e)}")
+        print(f"[ERROR] Login error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
 @app.route("/api/register", methods=["POST", "OPTIONS"])
@@ -201,38 +201,38 @@ def register():
         password = data.get("password", "").strip()
         email = data.get("email", "")
         
-        print(f"📝 Registration attempt - Username: '{username}'")
-        
+        print(f"[INFO] Registration attempt - Username: '{username}'")
+
         if not username or not password:
             return jsonify({"error": "Username and password required"}), 400
-        
+
         if len(password) < 3:
             return jsonify({"error": "Password too short"}), 400
-        
+
         hashed_pw = generate_password_hash(password)
-        
+
         conn = get_db()
         cur = conn.cursor()
-        
+
         try:
             cur.execute(
                 "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, ?)",
                 (username, hashed_pw, email, "user")
             )
             conn.commit()
-            print(f"✅ User registered: {username}")
+            print(f"[OK] User registered: {username}")
             return jsonify({
                 "success": True,
                 "message": "User registered successfully"
             }), 201
-            
+
         except sqlite3.IntegrityError:
             return jsonify({"error": "Username already exists"}), 409
         finally:
             conn.close()
-            
+
     except Exception as e:
-        print(f"❌ Registration error: {str(e)}")
+        print(f"[ERROR] Registration error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
 @app.route("/api/auth/me", methods=["GET", "OPTIONS"])
