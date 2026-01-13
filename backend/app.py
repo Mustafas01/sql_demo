@@ -569,10 +569,10 @@ def health():
 # ======================
 if __name__ == "__main__":
     print(f"\n{'='*60}")
-    print("🚀 SQL Injection Demo - Flask Backend")
+    print("SQL Injection Demo - Flask Backend")
     print(f"{'='*60}")
-    print(f"📁 Database: {DB_PATH}")
-    print(f"🌐 Backend API: http://127.0.0.1:5000")
+    print(f"Database: {DB_PATH}")
+    print(f"Backend API: http://127.0.0.1:5000")
     print(f"🌐 Frontend: http://localhost:3000")
     print(f"\n🔗 API Endpoints:")
     print(f"   POST /api/login          - User login")
