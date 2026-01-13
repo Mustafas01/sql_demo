@@ -60,10 +60,15 @@ const AdminPanel = ({ user, onBack }) => {
     setMessage('');
     try {
       const result = await getProducts();
-      if (Array.isArray(result)) {
+
+      // getProducts() now returns { success, products }
+      if (result && result.success && Array.isArray(result.products)) {
+        setProducts(result.products);
+      } else if (Array.isArray(result)) {
+        // Backwards compatibility if getProducts ever returns a raw array
         setProducts(result);
       } else {
-        setMessage('Failed to load products');
+        setMessage(result?.error || 'Failed to load products');
       }
     } catch (err) {
       if (err?.response?.status === 401) {

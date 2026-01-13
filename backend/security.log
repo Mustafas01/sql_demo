@@ -36,3 +36,8 @@
 2026-01-09 13:36:08,857 | INFO | 127.0.0.1 - - [09/Jan/2026 13:36:08] "POST /api/login HTTP/1.1" 200 -
 2026-01-09 16:43:23,818 | INFO |  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\security_logger.py', reloading
 2026-01-09 16:43:23,888 | INFO |  * Restarting with stat
+2026-01-13T18:18:00.795257 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin' OR '1'='1
+2026-01-13T18:18:13.497589 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=' UNION SELECT * FROM users--
+2026-01-13T18:18:17.527079 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT * FROM users--
+2026-01-13T18:19:03.221064 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' OR '1'='1
+2026-01-13T18:19:05.173426 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT username,password,email FROM users--

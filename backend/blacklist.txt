@@ -29,3 +29,5 @@ Search attempt: ' UNION SELECT username,password,email FROM users--
 Search attempt: ' OR '1'='1
 Login attempt: username=admin' OR '1'='1, password=test
 Login attempt: username=admin' OR '1'='2, password=test
+admin' OR '1'='1
+' UNION SELECT username,password,email FROM users--
