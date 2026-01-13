@@ -145,7 +145,11 @@ export const register = async (username, password, email) => {
 export const getProducts = async () => {
   try {
     const res = await api.get('/api/products');
-    return res.data;
+    // Backend returns a plain array of products; wrap it in a consistent shape
+    if (Array.isArray(res.data)) {
+      return { success: true, products: res.data };
+    }
+    return { success: false, error: 'Unexpected products response format' };
   } catch (err) {
     return { success: false, error: 'Failed to load products' };
   }
@@ -154,7 +158,11 @@ export const getProducts = async () => {
 export const getProductById = async (productId) => {
   try {
     const res = await api.get(`/api/products/${productId}`);
-    return res.data;
+    // Backend returns a single product object
+    if (res.data && typeof res.data === 'object' && !Array.isArray(res.data)) {
+      return { success: true, product: res.data };
+    }
+    return { success: false, error: 'Unexpected product response format' };
   } catch (err) {
     return { success: false, error: 'Failed to load product' };
   }
@@ -163,7 +171,11 @@ export const getProductById = async (productId) => {
 export const searchProducts = async (query) => {
   try {
     const res = await api.post('/api/search', { query: query.trim() });
-    return res.data;
+    // Backend returns an array of matching products
+    if (Array.isArray(res.data)) {
+      return { success: true, results: res.data };
+    }
+    return { success: false, error: 'Unexpected search response format' };
   } catch (err) {
     return {
       success: false,
