@@ -1,0 +1,50 @@
+2026-01-13 15:49:39,070 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-01-13 15:49:39,070 - INFO - [33mPress CTRL+C to quit[0m
+2026-01-13 15:49:39,072 - INFO -  * Restarting with stat
+2026-01-13 15:49:39,411 - WARNING -  * Debugger is active!
+2026-01-13 15:49:39,416 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:50:01,923 - INFO - 127.0.0.1 - - [13/Jan/2026 15:50:01] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:51:41,967 - INFO - 127.0.0.1 - - [13/Jan/2026 15:51:41] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:53:15,835 - INFO -  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-13 15:53:15,884 - INFO -  * Restarting with stat
+2026-01-13 15:53:16,248 - WARNING -  * Debugger is active!
+2026-01-13 15:53:16,251 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:53:21,425 - INFO - 127.0.0.1 - - [13/Jan/2026 15:53:21] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:53:29,394 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-01-13 15:53:29,395 - INFO - [33mPress CTRL+C to quit[0m
+2026-01-13 15:53:29,396 - INFO -  * Restarting with stat
+2026-01-13 15:53:29,791 - WARNING -  * Debugger is active!
+2026-01-13 15:53:29,796 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:53:35,965 - INFO - 127.0.0.1 - - [13/Jan/2026 15:53:35] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:53:42,221 - INFO -  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-13 15:53:42,269 - INFO -  * Restarting with stat
+2026-01-13 15:53:42,697 - WARNING -  * Debugger is active!
+2026-01-13 15:53:42,701 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:53:53,193 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-01-13 15:53:53,193 - INFO - [33mPress CTRL+C to quit[0m
+2026-01-13 15:53:53,195 - INFO -  * Restarting with stat
+2026-01-13 15:53:53,555 - WARNING -  * Debugger is active!
+2026-01-13 15:53:53,560 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:53:57,327 - INFO - 127.0.0.1 - - [13/Jan/2026 15:53:57] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:54:08,816 - INFO - 127.0.0.1 - - [13/Jan/2026 15:54:08] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:54:17,417 - INFO - 127.0.0.1 - - [13/Jan/2026 15:54:17] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 15:57:17,142 - INFO -  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-13 15:57:17,188 - INFO -  * Restarting with stat
+2026-01-13 15:57:17,604 - WARNING -  * Debugger is active!
+2026-01-13 15:57:17,609 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:57:22,257 - INFO -  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-13 15:57:22,305 - INFO -  * Restarting with stat
+2026-01-13 15:57:22,700 - WARNING -  * Debugger is active!
+2026-01-13 15:57:22,704 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:57:34,677 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-01-13 15:57:34,677 - INFO - [33mPress CTRL+C to quit[0m
+2026-01-13 15:57:34,679 - INFO -  * Restarting with stat
+2026-01-13 15:57:35,073 - WARNING -  * Debugger is active!
+2026-01-13 15:57:35,078 - INFO -  * Debugger PIN: 937-678-769
+2026-01-13 15:57:44,045 - INFO - 127.0.0.1 - - [13/Jan/2026 15:57:44] "[31m[1mOPTIONS /api/login HTTP/1.1[0m" 415 -
+2026-01-13 16:13:13,354 - INFO -  * Detected change in 'C:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\security_logger.py', reloading
+2026-01-13 16:13:13,430 - INFO -  * Restarting with stat
