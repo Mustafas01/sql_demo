@@ -7,21 +7,43 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BLACKLIST_PATH = os.path.join(BASE_DIR, "blacklist.txt")
 
 SQLI_PATTERNS = [
-    # Classic boolean-based injections like ' OR 1=1, ' AND 1=1, etc.
-    r"(?i)('|%27)\s*(OR|AND)\s+\d+\s*=",  # ' OR 1= or ' AND 1=
-    # Very common teaching/demo pattern: ' OR '1'='1 (also matches inside longer strings like "admin' OR '1'='1'")
-    r"(?i)'\s*OR\s*'1'='1",  # ' OR '1'='1
-    r"(?i)('|%27)\s*(;|--)\s",  # '; or '-- followed by space
-    r"(?i)\bUNION\s+(ALL\s+)?SELECT\b",  # UNION SELECT
-    r"(?i)\bSELECT\s+.*\s+FROM\s+",  # SELECT ... FROM
-    r"(?i)\bINSERT\s+INTO\b",  # INSERT INTO
-    r"(?i)\bDROP\s+(TABLE|DATABASE)\b",  # DROP TABLE/DATABASE
-    r"(?i)\bUPDATE\s+\w+\s+SET\b",  # UPDATE table SET
-    r"(?i)\bDELETE\s+FROM\b",  # DELETE FROM
-    r"(?i)\bEXEC(UTE)?\s*\(",  # EXECUTE
-    r"(?i);\s*(DROP|DELETE|UPDATE|INSERT|CREATE)\b",  # Command chaining
-    r"(?i)information_schema",  # System table access
-    r"(?i)(load_file|outfile|into\s+dumpfile)"  # File operations
+    # 1) Boolean-based injections and classic tautologies
+    r"(?i)\bOR\b\s+1=1",
+    r"(?i)\bAND\b\s+1=1",
+    r"(?i)('|%27)\s*(OR|AND)\s+[`'0-9]+\s*=\s*[`'0-9]+",  # ' OR '1'='1, ' AND 2=2, etc.
+    r"(?i)'\s*OR\s*'1'='1",  # ' OR '1'='1 inside longer strings
+
+    # 2) UNION- and sub-select based data extraction
+    r"(?i)\bUNION\s+(ALL\s+)?SELECT\b",
+    r"(?i)\bSELECT\s+.*\bFROM\b",
+    r"(?i)\bEXTRACTVALUE\s*\(",
+    r"(?i)\bUPDATEXML\s*\(",
+
+    # 3) DDL / DML statements and stacked queries
+    r"(?i)\bINSERT\s+INTO\b",
+    r"(?i)\bUPDATE\s+\w+\s+SET\b",
+    r"(?i)\bDELETE\s+FROM\b",
+    r"(?i)\bDROP\s+(TABLE|DATABASE|SCHEMA)\b",
+    r"(?i)\bALTER\s+TABLE\b",
+    r"(?i)\bCREATE\s+(TABLE|DATABASE|FUNCTION|PROCEDURE)\b",
+    r"(?i);\s*(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|EXEC(UTE)?)\b",  # stacked commands
+
+    # 4) Time-based / resource exhaustion techniques
+    r"(?i)\bSLEEP\s*\(",
+    r"(?i)\bBENCHMARK\s*\(",
+    r"(?i)\bWAITFOR\s+DELAY\b",
+    r"(?i)\bPG_SLEEP\s*\(",
+
+    # 5) System tables / metadata access
+    r"(?i)information_schema",
+    r"(?i)\bPG_CATALOG\b",
+    r"(?i)\bSYS\.",
+
+    # 6) File / OS interaction
+    r"(?i)(load_file|outfile|into\s+dumpfile)",
+
+    # 7) Comment-based truncation commonly used in SQLi
+    r"(?i)(--|#|/\*)\s*[^\n]*$",
 ]
 
 SAFE_PATHS = [

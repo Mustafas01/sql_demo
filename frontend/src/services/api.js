@@ -6,18 +6,43 @@ import axios from 'axios';
 const API_BASE_URL = 'http://localhost:5000';
 
 const SQLI_PATTERNS = [
-  // Only match actual SQL injection patterns, not normal text/numbers
-  /('|\%27)\s*(OR|AND)\s+\d+\s*=/i,  // ' OR 1= or ' AND 1=
-  /'\s*OR\s*'1'='1/i,                  // classic demo: ' OR '1'='1 (also matches inside longer strings)
-  /('|\%27)\s*(;|--)\s*/i,            // '; or '-- (semicolon or double dash followed by space)
-  /\bUNION\s+(ALL\s+)?SELECT\b/i,     // UNION SELECT
-  /\bSELECT\s+.*\s+FROM\s+/i,         // SELECT ... FROM
-  /\bINSERT\s+INTO\b/i,                // INSERT INTO
-  /\bDROP\s+(TABLE|DATABASE)\b/i,      // DROP TABLE/DATABASE
-  /\bUPDATE\s+\w+\s+SET\b/i,         // UPDATE table SET
-  /\bDELETE\s+FROM\b/i,               // DELETE FROM
-  /\bEXEC(UTE)?\s*\(/i,               // EXECUTE
-  /;\s*(DROP|DELETE|UPDATE|INSERT|CREATE)\b/i  // Command chaining
+  // 1) Boolean-based injections and classic tautologies
+  /\bOR\b\s+1=1/i,
+  /\bAND\b\s+1=1/i,
+  /('|\%27)\s*(OR|AND)\s+['"`0-9]+\s*=\s*['"`0-9]+/i, // ' OR '1'='1, ' AND 2=2, etc.
+  /'\s*OR\s*'1'='1/i,                                    // ' OR '1'='1 inside longer strings
+
+  // 2) UNION- and sub-select based data extraction
+  /\bUNION\s+(ALL\s+)?SELECT\b/i,
+  /\bSELECT\s+.*\bFROM\b/i,
+  /\bEXTRACTVALUE\s*\(/i,
+  /\bUPDATEXML\s*\(/i,
+
+  // 3) DDL / DML statements and stacked queries
+  /\bINSERT\s+INTO\b/i,
+  /\bUPDATE\s+\w+\s+SET\b/i,
+  /\bDELETE\s+FROM\b/i,
+  /\bDROP\s+(TABLE|DATABASE|SCHEMA)\b/i,
+  /\bALTER\s+TABLE\b/i,
+  /\bCREATE\s+(TABLE|DATABASE|FUNCTION|PROCEDURE)\b/i,
+  /;\s*(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|EXEC(UTE)?)\b/i, // stacked commands
+
+  // 4) Time-based / resource exhaustion techniques
+  /\bSLEEP\s*\(/i,
+  /\bBENCHMARK\s*\(/i,
+  /\bWAITFOR\s+DELAY\b/i,
+  /\bPG_SLEEP\s*\(/i,
+
+  // 5) System tables / metadata access
+  /information_schema/i,
+  /\bPG_CATALOG\b/i,
+  /\bSYS\./i,
+
+  // 6) File / OS interaction
+  /(load_file|outfile|into\s+dumpfile)/i,
+
+  // 7) Comment-based truncation commonly used in SQLi
+  /(--|#|\/\*)\s*[^\n]*$/i,
 ];
 
 const detectSQLInjection = (payload) => {

@@ -346,12 +346,41 @@ def admin_create_user():
         print(f"Admin create user error: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/api/admin/users/<int:uid>", methods=["PUT", "OPTIONS"])
+@app.route("/api/admin/users/<int:uid>", methods=["PUT", "DELETE", "OPTIONS"])
 @jwt_required()
 def admin_update_user(uid):
     if request.method == "OPTIONS":
         return jsonify({"status": "ok"})
-        
+
+    # DELETE handled by dedicated logic below for clarity
+    if request.method == "DELETE":
+        guard = admin_required()
+        if guard:
+            return guard
+
+        try:
+            conn = get_db()
+            cur = conn.cursor()
+
+            # Prevent deletion of primary admin account
+            cur.execute("SELECT username FROM users WHERE id = ?", (uid,))
+            row = cur.fetchone()
+            if not row:
+                conn.close()
+                return jsonify({"error": "User not found"}), 404
+            if row["username"] == "admin":
+                conn.close()
+                return jsonify({"error": "Cannot delete primary admin user"}), 400
+
+            cur.execute("DELETE FROM users WHERE id = ?", (uid,))
+            conn.commit()
+            conn.close()
+            return jsonify({"message": "User deleted"})
+        except Exception as e:
+            print(f"Admin delete user error: {str(e)}")
+            return jsonify({"error": "Internal server error"}), 500
+
+    # Default: handle PUT update
     guard = admin_required()
     if guard:
         return guard
