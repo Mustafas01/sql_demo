@@ -197,32 +197,58 @@ const AdminPanel = ({ user, onBack }) => {
 
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
+      setLoading(true);
       try {
         const result = await adminDeleteProduct(productId);
         if (result && result.message) {
           setMessage('Product deleted successfully!');
           loadProducts();
+        } else if (result?.error) {
+          setMessage(result.error);
         } else {
-          setMessage(result?.error || 'Delete failed');
+          setMessage('Delete failed');
         }
       } catch (err) {
-        setMessage('Delete failed');
+        if (err?.wafBlocked) {
+          setMessage(err.message || 'Malicious input logged and block the attempt');
+        } else if (err?.response?.status === 401) {
+          setMessage('Session expired. Redirecting to login...');
+          setTimeout(() => navigate("/"), 1500);
+        } else {
+          setMessage('Delete failed');
+        }
+        console.error('Delete product error:', err);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const handleDeleteUser = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
+      setLoading(true);
       try {
         const result = await adminDeleteUser(userId);
         if (result && result.message) {
           setMessage('User deleted successfully!');
           loadUsers();
+        } else if (result?.error) {
+          setMessage(result.error);
         } else {
-          setMessage(result?.error || 'Delete failed');
+          setMessage('Delete failed');
         }
       } catch (err) {
-        setMessage('Delete failed');
+        if (err?.wafBlocked) {
+          setMessage(err.message || 'Malicious input logged and block the attempt');
+        } else if (err?.response?.status === 401) {
+          setMessage('Session expired. Redirecting to login...');
+          setTimeout(() => navigate("/"), 1500);
+        } else {
+          setMessage('Delete failed');
+        }
+        console.error('Delete user error:', err);
+      } finally {
+        setLoading(false);
       }
     }
   };

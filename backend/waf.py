@@ -59,7 +59,10 @@ SAFE_PATHS = [
 ]
 
 def is_safe_path(path):
-    return any(path.startswith(p) for p in SAFE_PATHS)
+    for safe_path in SAFE_PATHS:
+        if path.startswith(safe_path):
+            return True
+    return False
 
 def _load_blacklist():
     """Load blacklisted payloads from blacklist.txt as a set of strings."""
@@ -90,6 +93,10 @@ def detect_sqli(value: str) -> bool:
 def waf_inspect_request():
     # Skip OPTIONS requests entirely (handled by CORS/before_request)
     if request.method == "OPTIONS":
+        return None
+
+    # Skip WAF inspection for safe paths (like admin delete endpoints)
+    if is_safe_path(request.path):
         return None
 
     client_ip = request.remote_addr or "unknown"
