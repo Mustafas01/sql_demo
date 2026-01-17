@@ -1,0 +1,2 @@
+# SQL Injection Blacklist
+Login attempt: username=admin' OR '1'='1, password=test

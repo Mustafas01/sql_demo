@@ -1,0 +1,140 @@
+2025-12-31 08:27:48,359 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2025-12-31 08:27:48,359 | INFO | [33mPress CTRL+C to quit[0m
+2025-12-31 08:27:48,362 | INFO |  * Restarting with stat
+2025-12-31 08:27:48,902 | WARNING |  * Debugger is active!
+2025-12-31 08:27:48,907 | INFO |  * Debugger PIN: 937-678-769
+2025-12-31 08:29:23,906 | INFO |  * Detected change in 'c:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\jwt_auth.py', reloading
+2025-12-31 08:29:24,008 | INFO |  * Restarting with stat
+2025-12-31 08:29:24,518 | WARNING |  * Debugger is active!
+2025-12-31 08:29:24,522 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 11:53:24,693 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2026-01-09 11:53:24,693 | INFO | [33mPress CTRL+C to quit[0m
+2026-01-09 11:53:24,695 | INFO |  * Restarting with stat
+2026-01-09 11:53:25,234 | WARNING |  * Debugger is active!
+2026-01-09 11:53:25,239 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 12:23:13,614 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2026-01-09 12:23:13,615 | INFO | [33mPress CTRL+C to quit[0m
+2026-01-09 12:23:13,616 | INFO |  * Restarting with stat
+2026-01-09 12:23:13,987 | WARNING |  * Debugger is active!
+2026-01-09 12:23:13,992 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 12:25:00,707 | INFO | IP=127.0.0.1 METHOD=GET PATH=/favicon.ico STATUS=404
+2026-01-09 12:25:00,708 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:00] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-01-09 12:25:13,064 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:25:13,066 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:13] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:25:13,321 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:25:13,321 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:13] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 12:25:13,370 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:13,371 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:13] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:13,634 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:13,634 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:13] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:15,089 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:15,089 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:15] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:15,395 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:15,395 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:15] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:16,934 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/admin/users STATUS=401
+2026-01-09 12:25:16,934 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:16] "[31m[1mGET /api/admin/users HTTP/1.1[0m" 401 -
+2026-01-09 12:25:25,293 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:25,294 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:25] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:25,599 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:25:25,599 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:25] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:25:35,690 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:25:35,690 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:35] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:25:35,943 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:25:35,943 | INFO | 127.0.0.1 - - [09/Jan/2026 12:25:35] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 12:41:24,376 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2026-01-09 12:41:24,377 | INFO | [33mPress CTRL+C to quit[0m
+2026-01-09 12:41:24,378 | INFO |  * Restarting with stat
+2026-01-09 12:41:24,755 | WARNING |  * Debugger is active!
+2026-01-09 12:41:24,760 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 12:41:54,375 | INFO | IP=127.0.0.1 METHOD=GET PATH=/main.ffba7f8012a336dabdc9.hot-update.json STATUS=404
+2026-01-09 12:41:54,376 | INFO | 127.0.0.1 - - [09/Jan/2026 12:41:54] "[33mGET /main.ffba7f8012a336dabdc9.hot-update.json HTTP/1.1[0m" 404 -
+2026-01-09 12:41:58,587 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:41:58,588 | INFO | 127.0.0.1 - - [09/Jan/2026 12:41:58] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:41:58,840 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:41:58,840 | INFO | 127.0.0.1 - - [09/Jan/2026 12:41:58] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 12:42:08,711 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:42:08,712 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:08] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:42:09,019 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:42:09,019 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:09] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 12:42:09,270 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:09,271 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:09] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:42:09,334 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:09,334 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:09] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:42:13,957 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/search STATUS=200
+2026-01-09 12:42:13,959 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:13] "OPTIONS /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:14,264 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/search STATUS=200
+2026-01-09 12:42:14,264 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:14] "POST /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:17,122 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/search STATUS=200
+2026-01-09 12:42:17,122 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:17] "POST /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:19,170 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/search STATUS=200
+2026-01-09 12:42:19,171 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:19] "POST /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:26,590 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/search STATUS=200
+2026-01-09 12:42:26,591 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:26] "OPTIONS /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:26,897 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/search STATUS=200
+2026-01-09 12:42:26,897 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:26] "POST /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:34,476 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/search STATUS=200
+2026-01-09 12:42:34,476 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:34] "OPTIONS /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:34,781 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/search STATUS=200
+2026-01-09 12:42:34,782 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:34] "POST /api/search HTTP/1.1" 200 -
+2026-01-09 12:42:38,923 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:38,923 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:38] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:42:40,476 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:40,478 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:40] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:42:44,565 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/product/1 STATUS=200
+2026-01-09 12:42:44,566 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:44] "GET /api/product/1 HTTP/1.1" 200 -
+2026-01-09 12:42:44,873 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/product/1 STATUS=200
+2026-01-09 12:42:44,874 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:44] "GET /api/product/1 HTTP/1.1" 200 -
+2026-01-09 12:42:48,012 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/product/1' STATUS=200
+2026-01-09 12:42:48,012 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:48] "GET /api/product/1' HTTP/1.1" 200 -
+2026-01-09 12:42:48,317 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/product/1' STATUS=200
+2026-01-09 12:42:48,317 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:48] "GET /api/product/1' HTTP/1.1" 200 -
+2026-01-09 12:42:53,340 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:53,340 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:53] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:42:53,645 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:42:53,645 | INFO | 127.0.0.1 - - [09/Jan/2026 12:42:53] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:48:02,019 | INFO |  * Detected change in 'c:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-09 12:48:02,085 | INFO |  * Restarting with stat
+2026-01-09 12:57:51,111 | INFO | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.129:5000
+2026-01-09 12:57:51,111 | INFO | [33mPress CTRL+C to quit[0m
+2026-01-09 12:57:51,114 | INFO |  * Restarting with stat
+2026-01-09 12:57:51,762 | WARNING |  * Debugger is active!
+2026-01-09 12:57:51,770 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 12:58:22,291 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:58:22,291 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:58:22,547 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:58:22,547 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 12:58:22,594 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/products STATUS=200
+2026-01-09 12:58:22,594 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "OPTIONS /api/products HTTP/1.1" 200 -
+2026-01-09 12:58:22,864 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/products STATUS=200
+2026-01-09 12:58:22,864 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "OPTIONS /api/products HTTP/1.1" 200 -
+2026-01-09 12:58:22,870 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:58:22,871 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:58:22,902 | INFO | IP=127.0.0.1 METHOD=GET PATH=/api/products STATUS=200
+2026-01-09 12:58:22,902 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:22] "GET /api/products HTTP/1.1" 200 -
+2026-01-09 12:58:34,323 | INFO | IP=127.0.0.1 METHOD=OPTIONS PATH=/api/login STATUS=200
+2026-01-09 12:58:34,323 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:34] "OPTIONS /api/login HTTP/1.1" 200 -
+2026-01-09 12:58:34,628 | INFO | IP=127.0.0.1 METHOD=POST PATH=/api/login STATUS=200
+2026-01-09 12:58:34,629 | INFO | 127.0.0.1 - - [09/Jan/2026 12:58:34] "POST /api/login HTTP/1.1" 200 -
+2026-01-09 13:24:56,043 | INFO | IP=127.0.0.1 METHOD=GET PATH=/main.69c7f35cfbb8a0a44a6d.hot-update.json STATUS=404
+2026-01-09 13:24:56,043 | INFO | 127.0.0.1 - - [09/Jan/2026 13:24:56] "[33mGET /main.69c7f35cfbb8a0a44a6d.hot-update.json HTTP/1.1[0m" 404 -
+2026-01-09 13:27:06,560 | INFO |  * Detected change in 'c:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-09 13:27:06,616 | INFO |  * Restarting with stat
+2026-01-09 13:27:07,066 | WARNING |  * Debugger is active!
+2026-01-09 13:27:07,071 | INFO |  * Debugger PIN: 937-678-769
+2026-01-09 13:27:10,368 | INFO |  * Detected change in 'c:\\Users\\bassh\\OneDrive\\Desktop\\SQLDEMO\\sql_demo\\backend\\app.py', reloading
+2026-01-09 13:27:10,436 | INFO |  * Restarting with stat
