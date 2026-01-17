@@ -710,4 +710,4 @@ if __name__ == "__main__":
     print(f"   Run in another terminal: cd frontend && npm start")
     print(f"{'='*60}\n")
     
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=False, host="127.0.0.1", port=5000)

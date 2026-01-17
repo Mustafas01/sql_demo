@@ -14,9 +14,11 @@ def _append_to_blacklist(payload: str) -> None:
     if not payload:
         return
 
-    os.makedirs(os.path.dirname(BLACKLIST_PATH), exist_ok=True)
-
     try:
+        blacklist_dir = os.path.dirname(BLACKLIST_PATH)
+        if blacklist_dir:
+            os.makedirs(blacklist_dir, exist_ok=True)
+
         existing = set()
         if os.path.exists(BLACKLIST_PATH):
             with open(BLACKLIST_PATH, "r", encoding="utf-8", errors="ignore") as f:
@@ -26,10 +28,11 @@ def _append_to_blacklist(payload: str) -> None:
         if normalized not in existing:
             with open(BLACKLIST_PATH, "a", encoding="utf-8") as f:
                 f.write(normalized + "\n")
-    except Exception:
+            print(f"[BLACKLIST] Added payload: {normalized[:50]}...")
+    except Exception as e:
         # This is a best-effort logging mechanism; failures here should not
         # break the main request handling path.
-        pass
+        print(f"[BLACKLIST ERROR] Failed to append to blacklist.txt: {e}")
 
 def _append_to_security_log(ip: str, payload: str, reason: str) -> None:
     timestamp = datetime.utcnow().isoformat()

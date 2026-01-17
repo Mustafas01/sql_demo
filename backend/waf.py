@@ -49,15 +49,11 @@ SQLI_PATTERNS = [
 ]
 
 SAFE_PATHS = [
-    "/api/login",
     "/api/register",
     "/api/auth/me",
-    "/api/admin/users",
-    "/api/admin/products",
     "/api/products",
-    "/api/search",
-    "/api/test-db",
-    "/api/health"
+    "/api/health",
+    "/api/test-db"
 ]
 
 def safe_log_attack(**kwargs):

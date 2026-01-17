@@ -87,12 +87,8 @@ if (token && !isAuthRoute) {
       console.warn('[WAF] SQL Injection pattern detected (client-side)');
       config.headers['X-WAF-Alert'] = 'SQLI_DETECTED';
       
-      // Create a rejected promise with WAF error info
-      const error = new Error('Malicious code detected (blocked by client-side WAF)');
-      error.wafBlocked = true;
-      error.blockedBy = 'WAF pattern';
-      error.field = 'request data';
-      return Promise.reject(error);
+      // CHANGED: Don't block here - let backend handle it for proper logging
+      // The backend WAF will detect it and log to blacklist.txt
     }
 
     return config;

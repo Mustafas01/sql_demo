@@ -44,3 +44,13 @@
 2026-01-17T08:45:30.155077 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'input' at /api/scan | PAYLOAD=' UNION SELECT * FROM users--
 2026-01-17T08:45:34.427957 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'input' at /api/scan | PAYLOAD=' UNION SELECT * FROM users--
 2026-01-17T08:46:31.591347 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'input' at /api/scan | PAYLOAD=' UNION SELECT * FROM users--
+2026-01-17T09:14:38.969410 | IP=127.0.0.1 | REASON=Test attack logging | PAYLOAD=' OR '1'='1 -- TEST PAYLOAD
+2026-01-17T09:23:57.944103 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=' OR '1'='1
+2026-01-17T09:23:59.953091 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin'--
+2026-01-17T09:24:01.961493 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=' UNION SELECT 1,2,3,4,5--
+2026-01-17T09:27:44.651648 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin' OR '1'='1
+2026-01-17T09:28:42.915002 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin' OR '1'='1
+2026-01-17T09:29:16.601203 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' OR '1'='1
+2026-01-17T09:29:35.383810 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT username,password,email FROM users--
+2026-01-17T09:29:37.411653 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT username,password,email FROM users--
+2026-01-17T09:35:10.420278 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=SELECT * FROM users WHERE username = 'admin' AND password = 'password123';
