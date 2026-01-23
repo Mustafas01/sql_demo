@@ -54,3 +54,6 @@
 2026-01-17T09:29:35.383810 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT username,password,email FROM users--
 2026-01-17T09:29:37.411653 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=' UNION SELECT username,password,email FROM users--
 2026-01-17T09:35:10.420278 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'query' at /api/search | PAYLOAD=SELECT * FROM users WHERE username = 'admin' AND password = 'password123';
+2026-01-23T19:54:33.225022 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin'
+2026-01-23T19:54:56.036515 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin'
+2026-01-23T19:57:44.197172 | IP=127.0.0.1 | REASON=SQLi/blacklisted value in JSON field 'username' at /api/login | PAYLOAD=admin' OR '1'='1
